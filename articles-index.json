@@ -14,5 +14,13 @@
     "date": "2025-12-20",
     "category": "课内学习",
     "tags": ["算法", "数据结构"]
+  },
+  {
+    "file": "test.md",
+    "title": "Markdown语法测试",
+    "excerpt": "本文是对Markdown语法的测试，包括代码块和数学公式等基本用法。",
+    "date": "2025-12-21",
+    "category": "实用工具",
+    "tags": ["Markdown"]
   }
 ]

@@ -6,6 +6,7 @@
     <title>技术博客 | 个人知识库</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css">
     <style>
         :root {
             --primary-color: #2563eb;
@@ -684,7 +685,7 @@
                     <i class="fas fa-code"></i>
                 </div>
                 <div class="logo-text">
-                    <h1>TechBlog</h1>
+                    <h1>Yuyang's Blog</h1>
                     <!-- <p>思考 · 记录 · 分享</p> -->
                 </div>
             </div>
@@ -719,7 +720,7 @@
                 <div class="profile-stats">
                     <div class="stat-item">
                         <div class="stat-value" id="articleCount">0</div>
-                        <div class="stat-label">文章数量</div>
+                        <div class="stat-label">博客数量</div>
                     </div>
                 </div>
 
@@ -790,6 +791,28 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>
+        // MathJax配置
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true,
+                processEnvironments: true
+            },
+            options: {
+                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+                ignoreHtmlClass: 'tex2jax_ignore',
+                processHtmlClass: 'tex2jax_process'
+            },
+            svg: {
+                fontCache: 'global'
+            }
+        };
+    </script>
     <script>
         // 全局状态
         const state = {
@@ -799,6 +822,31 @@
             theme: localStorage.getItem('theme') || 'light',
             searchVisible: false
         };
+
+        /**
+         * 安全地渲染数学公式
+         * @param {HTMLElement} element - 包含数学公式的DOM元素
+         */
+        function renderMathInElement(element) {
+            // MathJax v3 方式
+            if (window.MathJax && MathJax.typesetPromise) {
+                MathJax.typesetPromise([element]).catch(function (err) {
+                    console.log('MathJax v3 渲染出错:', err);
+                });
+            } 
+            // MathJax v2 方式
+            else if (window.MathJax && MathJax.Hub) {
+                MathJax.Hub.Queue(["Typeset", MathJax.Hub, element]);
+            }
+            // 如果MathJax尚未加载完成，等待加载后再渲染
+            else if (window.MathJax) {
+                setTimeout(() => renderMathInElement(element), 100);
+            }
+            // MathJax未正确加载
+            else {
+                console.log('MathJax 未正确加载');
+            }
+        }
 
         // DOM元素
         const elements = {
@@ -950,8 +998,10 @@
                     breaks: true,
                     gfm: true,
                     highlight: function(code, lang) {
-                        // 在实际项目中，可以集成代码高亮库如highlight.js
-                        return `<pre><code class="language-${lang}">${escapeHtml(code)}</code></pre>`;
+                        if (lang && hljs.getLanguage(lang)) {
+                            return hljs.highlight(code, { language: lang }).value;
+                        }
+                        return hljs.highlightAuto(code).value;
                     }
                 });
                 
@@ -960,6 +1010,12 @@
                 // 更新内容
                 elements.modalContent.innerHTML = htmlContent;
                 elements.modalReadTime.textContent = calculateReadTime(markdownContent);
+                
+                // 触发代码高亮
+                hljs.highlightAll();
+                
+                // 触发MathJax渲染数学公式
+                renderMathInElement(elements.modalContent);
                 
                 // 显示内容
                 elements.modalLoading.style.display = 'none';
