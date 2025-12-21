@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>技术博客 | 个人知识库</title>
+    <link rel="icon" href="./images/icon/发布.png" type="image/x-icon">
+    <title>Yuyang's Blog</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css">
@@ -511,6 +512,53 @@
             line-height: 1.8;
         }
 
+        [data-theme="dark"] .markdown-body {
+            color: #f9fafb;
+        }
+
+        /* 表格样式 */
+        .markdown-body table {
+            background-color: var(--bg-card);
+        }
+
+        .markdown-body th,
+        .markdown-body td {
+            border-color: var(--border-color);
+        }
+
+        .markdown-body tr:nth-child(2n) {
+            background-color: var(--bg-secondary);
+        }
+        
+        .markdown-body tr:nth-child(2n+1) {
+            background-color: var(--bg-card);
+        }
+
+        /* 黑夜模式下的表格样式 */
+        [data-theme="dark"] .markdown-body table {
+            background-color: var(--bg-card);
+        }
+
+        [data-theme="dark"] .markdown-body th,
+        [data-theme="dark"] .markdown-body td {
+            border-color: var(--border-color);
+        }
+
+        [data-theme="dark"] .markdown-body tr:nth-child(2n) {
+            background-color: var(--bg-secondary);
+        }
+        
+        [data-theme="dark"] .markdown-body tr:nth-child(2n+1) {
+            background-color: var(--bg-card);
+        }
+
+        /* 黑夜模式下代码高亮样式 */
+        [data-theme="dark"] .markdown-body pre,
+        [data-theme="dark"] .markdown-body code {
+            background-color: var(--bg-secondary);
+            color: #f9fafb;
+        }
+
         .markdown-body h1, 
         .markdown-body h2, 
         .markdown-body h3 {
@@ -871,6 +919,9 @@
             document.documentElement.setAttribute('data-theme', state.theme);
             const icon = elements.themeToggle.querySelector('i');
             icon.className = state.theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+            
+            // 动态切换highlight.js样式
+            switchHighlightStyle(state.theme);
         }
 
         // 切换主题
@@ -878,6 +929,33 @@
             state.theme = state.theme === 'light' ? 'dark' : 'light';
             localStorage.setItem('theme', state.theme);
             initTheme();
+            
+            // 如果有文章内容正在显示，重新高亮代码
+            if (elements.modalContent.style.display !== 'none') {
+                hljs.highlightAll();
+            }
+        }
+        
+        // 根据主题切换highlight.js样式
+        function switchHighlightStyle(theme) {
+            const highlightLink = document.querySelector('link[href*="highlight.js"]');
+            if (highlightLink) {
+                const newHref = theme === 'dark' 
+                    ? 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github-dark.min.css'
+                    : 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css';
+                    
+                // 如果链接已存在且href不同，则替换
+                if (highlightLink.href !== newHref) {
+                    const newLink = document.createElement('link');
+                    newLink.rel = 'stylesheet';
+                    newLink.href = newHref;
+                    newLink.onload = () => {
+                        // 移除旧的链接
+                        highlightLink.remove();
+                    };
+                    document.head.appendChild(newLink);
+                }
+            }
         }
 
         // 切换搜索框显示
@@ -1053,68 +1131,12 @@
             // 模拟文章数据
             const articles = [
                 {
-                    file: 'article1.md',
-                    title: '深入理解JavaScript闭包与作用域链',
-                    excerpt: '闭包是JavaScript中最重要的概念之一，本文深入探讨闭包的工作原理、使用场景以及性能考量。',
-                    date: '2023-10-15',
-                    category: 'JavaScript',
-                    tags: ['JavaScript', '闭包', '作用域', '核心概念']
-                },
-                {
-                    file: 'article2.md',
-                    title: '现代CSS Grid布局完全指南',
-                    excerpt: '掌握CSS Grid布局，构建复杂的响应式网页设计。包含实战案例和最佳实践。',
-                    date: '2023-11-02',
-                    category: 'CSS',
-                    tags: ['CSS', 'Grid', '布局', '响应式设计']
-                },
-                {
-                    file: 'article3.md',
-                    title: 'React Hooks深度解析与最佳实践',
-                    excerpt: '从useState到自定义Hook，全面解析React Hooks的设计哲学和实际应用技巧。',
-                    date: '2023-11-20',
-                    category: 'React',
-                    tags: ['React', 'Hooks', '前端框架', '最佳实践']
-                },
-                {
-                    file: 'article4.md',
-                    title: 'Node.js高性能服务开发指南',
-                    excerpt: '构建高并发Node.js服务的核心策略，包括事件循环、集群模式和内存管理。',
-                    date: '2023-12-05',
-                    category: 'Node.js',
-                    tags: ['Node.js', '后端', '性能优化', '高并发']
-                },
-                {
-                    file: 'article5.md',
-                    title: 'TypeScript高级类型系统实战',
-                    excerpt: '深入TypeScript的类型系统，掌握条件类型、映射类型和模板字面量类型的应用。',
-                    date: '2023-12-18',
-                    category: 'TypeScript',
-                    tags: ['TypeScript', '类型系统', '静态类型', '高级特性']
-                },
-                {
-                    file: 'article6.md',
-                    title: 'Webpack 5配置优化与插件开发',
-                    excerpt: '从基础配置到高级优化，全面掌握Webpack 5的核心功能和性能调优技巧。',
-                    date: '2024-01-08',
-                    category: '构建工具',
-                    tags: ['Webpack', '构建工具', '性能优化', '配置']
-                },
-                {
-                    file: 'article7.md',
-                    title: 'Docker容器化部署全流程实践',
-                    excerpt: '从开发到生产，使用Docker实现应用的全生命周期容器化管理。',
-                    date: '2024-01-22',
-                    category: 'DevOps',
-                    tags: ['Docker', '容器化', '部署', 'DevOps']
-                },
-                {
-                    file: 'article8.md',
-                    title: '算法思维：二叉树的应用与实现',
-                    excerpt: '深入理解二叉树数据结构，掌握其在算法面试和实际开发中的应用。',
-                    date: '2024-02-10',
-                    category: '算法',
-                    tags: ['算法', '数据结构', '二叉树', '面试']
+                    file: 'test.md',
+                    title: 'Markdown语法测试',
+                    excerpt: '本文是对Markdown语法的测试，包括代码块和数学公式等基本用法。',
+                    date: '2024-12-11',
+                    category: '实用工具',
+                    tags: ['Markdown', '测试']
                 }
             ];
             
