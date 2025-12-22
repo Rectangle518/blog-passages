@@ -1,6 +1,6 @@
 [
   {
-    "file": "Git学习.md",
+    "file": "./articles/Git学习.md",
     "title": "Git学习",
     "excerpt": "Git是一种分布式版本控制系统，本文介绍了Git的基本命令和具体理解。",
     "date": "2025-12-21",
@@ -8,7 +8,7 @@
     "tags": ["Git", "版本控制"]
   },
   {
-    "file": "数据结构与算法.md",
+    "file": "./articles/数据结构与算法.md",
     "title": "数据结构与算法",
     "excerpt": "针对数据结构与算法课程的学习笔记，涵盖基本概念与常用算法。",
     "date": "2025-12-20",
@@ -16,7 +16,7 @@
     "tags": ["算法", "数据结构"]
   },
   {
-    "file": "test.md",
+    "file": "./articles/test.md",
     "title": "Markdown语法测试",
     "excerpt": "本文是对Markdown语法的测试，包括代码块和数学公式等基本用法。",
     "date": "2025-12-21",
