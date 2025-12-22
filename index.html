@@ -417,6 +417,49 @@
             border: 1px solid var(--border-color);
         }
 
+        /* 分页控件样式 */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 2rem;
+            padding: 1rem;
+        }
+
+        .pagination-button {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 0.5rem 0.9rem;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+
+        .pagination-button:hover:not(:disabled) {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .pagination-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination-button.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .pagination-ellipsis {
+            color: var(--text-secondary);
+            padding: 0.5rem;
+        }
+
         /* 文章详情模态框 - 铺满整个页面 */
         .article-modal {
             position: fixed;
@@ -862,13 +905,33 @@
         };
     </script>
     <script>
+        // DOM元素
+        const elements = {
+            themeToggle: document.getElementById('themeToggle'),
+            searchToggle: document.getElementById('searchToggle'),
+            searchContainer: document.getElementById('searchContainer'),
+            searchInput: document.getElementById('searchInput'),
+            articlesGrid: document.getElementById('articlesGrid'),
+            articleModal: document.getElementById('articleModal'),
+            modalTitle: document.getElementById('modalTitle'),
+            modalDate: document.getElementById('modalDate'),
+            modalReadTime: document.getElementById('modalReadTime'),
+            modalTags: document.getElementById('modalTags'),
+            modalContent: document.getElementById('modalContent'),
+            modalLoading: document.getElementById('modalLoading'),
+            closeModal: document.getElementById('closeModal'),
+            articleCount: document.getElementById('articleCount')
+        };
+
         // 全局状态
         const state = {
             articles: [],
             filteredArticles: [],
             currentArticle: null,
             theme: localStorage.getItem('theme') || 'light',
-            searchVisible: false
+            searchVisible: false,
+            currentPage: 1,     // 当前页码
+            articlesPerPage: 4  // 每页文章数
         };
 
         /**
@@ -895,24 +958,6 @@
                 console.log('MathJax 未正确加载');
             }
         }
-
-        // DOM元素
-        const elements = {
-            themeToggle: document.getElementById('themeToggle'),
-            searchToggle: document.getElementById('searchToggle'),
-            searchContainer: document.getElementById('searchContainer'),
-            searchInput: document.getElementById('searchInput'),
-            articlesGrid: document.getElementById('articlesGrid'),
-            articleModal: document.getElementById('articleModal'),
-            modalTitle: document.getElementById('modalTitle'),
-            modalDate: document.getElementById('modalDate'),
-            modalReadTime: document.getElementById('modalReadTime'),
-            modalTags: document.getElementById('modalTags'),
-            modalContent: document.getElementById('modalContent'),
-            modalLoading: document.getElementById('modalLoading'),
-            closeModal: document.getElementById('closeModal'),
-            articleCount: document.getElementById('articleCount')
-        };
 
         // 初始化主题
         function initTheme() {
@@ -985,6 +1030,8 @@
                 });
             }
             
+            // 重置到第一页
+            state.currentPage = 1;
             renderArticlesGrid();
         }
 
@@ -994,6 +1041,14 @@
             const wordCount = content.split(/\s+/).length;
             const minutes = Math.ceil(wordCount / wordsPerMinute);
             return minutes < 1 ? '1分钟以内' : `${minutes}分钟`;
+        }
+
+        // 移除分页控件
+        function removePagination() {
+            const paginationContainer = document.getElementById('paginationContainer');
+            if (paginationContainer) {
+                paginationContainer.remove();
+            }
         }
 
         // 渲染文章网格
@@ -1006,10 +1061,18 @@
                         <p>尝试使用不同的关键词搜索</p>
                     </div>
                 `;
+                // 移除分页控件
+                removePagination();
                 return;
             }
             
-            elements.articlesGrid.innerHTML = state.filteredArticles.map(article => `
+            // 计算分页数据
+            const startIndex = (state.currentPage - 1) * state.articlesPerPage;
+            const endIndex = startIndex + state.articlesPerPage;
+            const paginatedArticles = state.filteredArticles.slice(startIndex, endIndex);
+            const totalPages = Math.ceil(state.filteredArticles.length / state.articlesPerPage);
+
+            elements.articlesGrid.innerHTML = paginatedArticles.map(article => `
                 <div class="article-card" data-file="${article.file}">
                     <div class="article-header">
                         <span class="article-category">${article.category || '技术'}</span>
@@ -1038,6 +1101,88 @@
                     openArticleModal(file);
                 });
             });
+            
+            // 添加分页控件
+            renderPagination(totalPages);
+        }
+
+        // 渲染分页控件
+        function renderPagination(totalPages) {
+            // 移除现有的分页控件
+            removePagination();
+            
+            // 如果只有一页，则不显示分页控件
+            if (totalPages <= 1) {
+                return;
+            }
+
+            // 创建分页容器
+            const paginationContainer = document.createElement('div');
+            paginationContainer.id = 'paginationContainer';
+            
+            // 生成分页按钮
+            let paginationHTML = '<div class="pagination">';
+            
+            // 上一页按钮
+            paginationHTML += `<button class="pagination-button" onclick="changePage(${state.currentPage - 1})" ${
+                state.currentPage === 1 ? 'disabled' : ''
+            }>&lt;</button>`;
+            
+            // 页面按钮
+            if (totalPages <= 5) {
+                // 如果总页数小于等于5，显示所有页码
+                for (let i = 1; i <= totalPages; i++) {
+                    paginationHTML += `<button class="pagination-button ${i === state.currentPage ? 'active' : ''}" onclick="changePage(${i})">${i}</button>`;
+                }
+            } else {
+                // 如果总页数大于5，显示省略号
+                if (state.currentPage > 2) {
+                    paginationHTML += `<button class="pagination-button" onclick="changePage(1)">1</button>`;
+                    if (state.currentPage > 3) {
+                        paginationHTML += '<span class="pagination-ellipsis">...</span>';
+                    }
+                }
+                
+                // 当前页前后各一页
+                for (let i = Math.max(1, state.currentPage - 1); i <= Math.min(totalPages, state.currentPage + 1); i++) {
+                    paginationHTML += `<button class="pagination-button ${i === state.currentPage ? 'active' : ''}" onclick="changePage(${i})">${i}</button>`;
+                }
+                
+                if (state.currentPage < totalPages - 1) {
+                    if (state.currentPage < totalPages - 2) {
+                        paginationHTML += '<span class="pagination-ellipsis">...</span>';
+                    }
+                    paginationHTML += `<button class="pagination-button" onclick="changePage(${totalPages})">${totalPages}</button>`;
+                }
+            }
+            
+            // 下一页按钮
+            paginationHTML += `<button class="pagination-button" onclick="changePage(${state.currentPage + 1})" ${
+                state.currentPage === totalPages ? 'disabled' : ''
+            }>&gt;</button>`;
+            
+            paginationHTML += '</div>';
+            
+            paginationContainer.innerHTML = paginationHTML;
+            
+            // 将分页控件插入到文章网格后面
+            elements.articlesGrid.parentNode.insertBefore(paginationContainer, elements.articlesGrid.nextSibling);
+        }
+
+        // 切换页面
+        function changePage(page) {
+            const totalPages = Math.ceil(state.filteredArticles.length / state.articlesPerPage);
+            
+            // 确保页码在有效范围内
+            if (page < 1 || page > totalPages) {
+                return;
+            }
+            
+            state.currentPage = page;
+            renderArticlesGrid();
+            
+            // 回到顶部
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         // 打开文章模态框
