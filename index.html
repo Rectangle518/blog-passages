@@ -863,10 +863,6 @@
                     <span id="modalDate">发布日期</span>
                 </div>
                 <div class="article-meta-item">
-                    <i class="far fa-clock"></i>
-                    <span id="modalReadTime">阅读时间</span>
-                </div>
-                <div class="article-meta-item">
                     <i class="fas fa-tags"></i>
                     <span id="modalTags">标签</span>
                 </div>
@@ -915,7 +911,6 @@
             articleModal: document.getElementById('articleModal'),
             modalTitle: document.getElementById('modalTitle'),
             modalDate: document.getElementById('modalDate'),
-            modalReadTime: document.getElementById('modalReadTime'),
             modalTags: document.getElementById('modalTags'),
             modalContent: document.getElementById('modalContent'),
             modalLoading: document.getElementById('modalLoading'),
@@ -1035,13 +1030,6 @@
             renderArticlesGrid();
         }
 
-        // 计算阅读时间
-        function calculateReadTime(content) {
-            const wordsPerMinute = 200;
-            const wordCount = content.split(/\s+/).length;
-            const minutes = Math.ceil(wordCount / wordsPerMinute);
-            return minutes < 1 ? '1分钟以内' : `${minutes}分钟`;
-        }
 
         // 移除分页控件
         function removePagination() {
@@ -1232,7 +1220,6 @@
                 
                 // 更新内容
                 elements.modalContent.innerHTML = htmlContent;
-                elements.modalReadTime.textContent = calculateReadTime(markdownContent);
                 
                 // 触发代码高亮
                 hljs.highlightAll();
