@@ -68,9 +68,9 @@ rebase命令用于将一个分支的提交应用到另一个分支上，它会�
 <br>
 下面是一个示例：在dev分支上rebase master分支。
 这是rebase前的提交历史：
-<img src="./images/git-learn/rebase_before.png" alt="rebase前" width="80%" height="80%">
+<img src="/images/git-learn/rebase_before.png" alt="rebase前" width="80%" height="80%">
 这是rebase后的提交历史：
-<img src="./images/git-learn/rebase_after.png" alt="rebase后" width="80%" height="80%">
+<img src="/images/git-learn/rebase_after.png" alt="rebase后" width="80%" height="80%">
 
 > rebase前后dev指向的提交对象并不是同一个对象
 
