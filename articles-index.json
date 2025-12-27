@@ -1,8 +1,16 @@
 [
   {
+    "file": "./articles/概统.md",
+    "title": "概率论与数理统计",
+    "excerpt": "快速过一遍概率论与数理统计的重点内容。",
+    "date": "2025-12-27",
+    "category": "课内学习",
+    "tags": ["数学","概率论" ]
+  },
+  {
     "file": "./articles/Git学习.md",
     "title": "Git学习",
-    "excerpt": "Git是一种分布式版本控制系统，本文介绍了Git的基本命令和具体理解。",
+    "excerpt": "Git是一种分布式版本控制系统，这里介绍了Git的基本命令和一些理解。",
     "date": "2025-12-21",
     "category": "实用工具",
     "tags": ["Git", "版本控制"]
@@ -10,7 +18,7 @@
   {
     "file": "./articles/数据结构与算法.md",
     "title": "数据结构与算法",
-    "excerpt": "针对数据结构与算法课程的学习笔记，涵盖基本概念与常用算法。",
+    "excerpt": "数据结构与算法的学习笔记。这篇文章比较长，建议在PC端食用。",
     "date": "2025-12-20",
     "category": "课内学习",
     "tags": ["算法", "数据结构"]
@@ -18,7 +26,7 @@
   {
     "file": "./articles/test.md",
     "title": "Markdown语法测试",
-    "excerpt": "本文是对Markdown语法的测试，包括代码块和数学公式等基本用法。",
+    "excerpt": "测试一下这个网页是否能正常渲染展示Markdown中的代码块和数学公式。",
     "date": "2025-12-21",
     "category": "实用工具",
     "tags": ["Markdown"]
