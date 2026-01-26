@@ -79,3 +79,7 @@ merge命令用于将两个分支的提交合并到一起，它会创建一个新
 
 > merge操作一般在master分支上进行（git merge dev）
 > rebase操作一般在dev分支进行（git rebase master）
+
+
+## 参考资料
+[1] BiliBili视频《【中配】看完这个，Git终于能懂了 - LearnThatStack》https://www.bilibili.com/video/BV1NtqbB7EVU/?spm_id_from=333.1387.favlist.content.click&vd_source=a939f7f974c5d4962dcac30d43697292

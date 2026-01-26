@@ -1,5 +1,13 @@
 [
   {
+    "file": "./articles/CMake学习.md",
+    "title": "CMake学习",
+    "excerpt": "介绍C/C++编译和链接的过程，以及CMake的基本使用，包括一些理论知识和实操案例。",
+    "date": "2026-01-24",
+    "category": "实用工具",
+    "tags": ["计算机", "C/C++"]
+  },
+  {
     "file": "./articles/计组.md",
     "title": "计组期末复习",
     "excerpt": "期末复习的内容，只针对考试范围进行整理。",
