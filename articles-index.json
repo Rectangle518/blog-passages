@@ -1,19 +1,19 @@
 [
   {
+    "file": "./articles/OpenMP学习.md",
+    "title": "OpenMP学习",
+    "excerpt": "介绍OpenMP的基本使用，包括并行编程的概念和一些实用的例子。",
+    "date": "2026-02-05",
+    "category": "实用工具",
+    "tags": ["C/C++", "并行编程"]
+  },
+  {
     "file": "./articles/CMake学习.md",
     "title": "CMake学习",
     "excerpt": "介绍C/C++编译和链接的过程，以及CMake的基本使用，包括一些理论知识和实操案例。",
     "date": "2026-01-24",
     "category": "实用工具",
     "tags": ["计算机", "C/C++"]
-  },
-  {
-    "file": "./articles/计组.md",
-    "title": "计组期末复习",
-    "excerpt": "期末复习的内容，只针对考试范围进行整理。",
-    "date": "2026-01-02",
-    "category": "课内学习",
-    "tags": ["计算机"]
   },
   {
     "file": "./articles/个人总结2025年度.md",
@@ -24,28 +24,12 @@
     "tags": ["年度总结"]
   },
   {
-    "file": "./articles/马原.md",
-    "title": "马原期末复习",
-    "excerpt": "对课本的一些摘录。",
-    "date": "2025-12-29",
-    "category": "课内学习",
-    "tags": ["思想政治"]
-  },
-  {
     "file": "./articles/离散数学考前必读.md",
     "title": "离散数学",
     "excerpt": "不构建大而全的知识体系，仅仅对离散数学中一些重要的知识点进行了整理。",
     "date": "2025-12-28",
     "category": "课内学习",
     "tags": ["数学", "离散数学"]
-  },
-  {
-    "file": "./articles/概统.md",
-    "title": "概率论与数理统计",
-    "excerpt": "快速过一遍概率论与数理统计的重点内容。",
-    "date": "2025-12-27",
-    "category": "课内学习",
-    "tags": ["数学", "概率论"]
   },
   {
     "file": "./articles/ML.md",
