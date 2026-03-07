@@ -1,5 +1,13 @@
 [
   {
+    "file": "./articles/MPI编程.md",
+    "title": "MPI编程",
+    "excerpt": "对于《并行程序设计导论》第三章的笔记与总结。",
+    "date": "2026-03-07",
+    "category": "实用工具",
+    "tags": ["C/C++", "并行编程"]
+  },
+  {
     "file": "./articles/OpenMP学习.md",
     "title": "OpenMP学习",
     "excerpt": "介绍OpenMP的基本使用，包括并行编程的概念和一些实用的例子。",
