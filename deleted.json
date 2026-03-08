@@ -30,5 +30,13 @@
     "date": "2025-12-27",
     "category": "课内学习",
     "tags": ["数学", "概率论"]
+  },
+  {
+    "file": "./articles/test.md",
+    "title": "Markdown语法测试",
+    "excerpt": "测试一下这个网页是否能正常渲染展示Markdown中的代码块和数学公式。",
+    "date": "2025-12-21",
+    "category": "实用工具",
+    "tags": ["Markdown"]
   }
 ]
