@@ -1,5 +1,13 @@
 [
   {
+    "file": "./articles/超算队招新.md",
+    "title": "集群搭建过程记录",
+    "excerpt": "记录集群搭建的具体操作和配置的步骤，便于以后随时参考。",
+    "date": "2026-03-08",
+    "category": "实操记录",
+    "tags": ["计算机", "HPC"]
+  },
+  {
     "file": "./articles/MPI编程.md",
     "title": "MPI编程",
     "excerpt": "对于《并行程序设计导论》第三章的笔记与总结。",
