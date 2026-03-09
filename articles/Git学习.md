@@ -1,5 +1,23 @@
 由于我只学习了Git的一部分，所以这里只记录我学习到的内容，后续再继续补充。
 
+目录如下：
+- [Git命令](#git命令)
+  - [基本命令](#基本命令)
+  - [远程仓库](#远程仓库)
+- [具体理解](#具体理解)
+  - [Git的提交](#git的提交)
+  - [分支](#分支)
+  - [HEAD](#head)
+  - [三个区域](#三个区域)
+  - [对比：checkout VS reset VS revert](#对比checkout-vs-reset-vs-revert)
+    - [checkout](#checkout)
+    - [reset](#reset)
+    - [revert](#revert)
+  - [对比：rebase VS merge](#对比rebase-vs-merge)
+    - [rebase](#rebase)
+    - [merge](#merge)
+- [参考资料](#参考资料)
+
 ## Git命令
 
 这里先列出一些常用的命令，以供参考和查阅。
