@@ -1,5 +1,21 @@
 [
   {
+    "file": "./articles/Python补充学习.md",
+    "title": "Python补充学习",
+    "excerpt": "这里是对Python的一些零散的补充学习笔记，主要是一些需要注意的点。",
+    "date": "2026-03-12",
+    "category": "编程语言",
+    "tags": ["Python3", "编程语言"]
+  },
+  {
+    "file": "./articles/OS实验.md",
+    "title": "操作系统实验",
+    "excerpt": "对操作系统实验的过程记录，也是为了写实验报告而准备的一些笔记与草稿。",
+    "date": "2026-03-09",
+    "category": "实操记录",
+    "tags": ["OS", "操作系统"]
+  },
+  {
     "file": "./articles/超算队招新.md",
     "title": "集群搭建过程记录",
     "excerpt": "记录集群搭建的具体操作和配置的步骤，便于以后随时参考。",
@@ -70,5 +86,13 @@
     "date": "2025-12-21",
     "category": "课内学习",
     "tags": ["算法", "数据结构"]
+  },
+  {
+    "file": "./articles/Golang学习.md",
+    "title": "Golang学习",
+    "excerpt": "Golang的学习笔记，主要是一些基础的语法和一些实用的功能的介绍。",
+    "date": "2025-11-24",
+    "category": "编程语言",
+    "tags": ["Go", "编程语言"]
   }
 ]
