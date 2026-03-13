@@ -1,5 +1,13 @@
 [
   {
+    "file": "./articles/slides.md",
+    "title": "Markdown Slides 产品文档",
+    "excerpt": "Markdown Slides 是一款轻量级演示文稿生成工具，允许用户直接使用标准的 Markdown 语法编写幻灯片内容。",
+    "date": "2026-03-13",
+    "category": "实用工具",
+    "tags": ["Markdown", "PPT"]
+  },
+  {
     "file": "./articles/Python补充学习.md",
     "title": "Python补充学习",
     "excerpt": "这里是对Python的一些零散的补充学习笔记，主要是一些需要注意的点。",

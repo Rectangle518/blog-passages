@@ -13,3 +13,5 @@
 2026-03-12 13:30:00 - UPLOAD BLOG - [master] - 上传三篇博客：《Golang学习》、《操作系统实验》、《Python补充学习》
 2026-03-13 15:00:00 - MODIFY UI   - [master] - 使用了新的界面：index_new.html
 2026-03-13 15:05:00 - MODIFY BLOG - [master] - 删除所有博客的目录，因为新界面已经支持目录
+2026-03-14 00:25:00 - UPLOAD TOOL - [master] - 上传工具：Markdown Slides
+2026-03-14 00:30:00 - UPLOAD BLOG - [master] - 上传博客：《Markdown Slides 产品文档》
