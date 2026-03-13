@@ -2,12 +2,6 @@
 
 实验文档：https://gitee.com/chenzx67/sysu-2026-spring-operating-system/blob/main/README.md
 
-目录如下：
-
-- [实验二-实验入门](#实验二-实验入门)
-  - [任务一-编写MBR程序](#任务一-编写mbr程序)
-  - [任务二-实模式中断](#任务二-实模式中断)
-  - [任务三-汇编](#任务三-汇编)
 
 ## 实验二-实验入门
 

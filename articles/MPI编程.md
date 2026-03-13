@@ -1,29 +1,5 @@
 对于《并行程序设计导论》第三章的笔记：使用MPI进行分布式内存编程。
 
-目录如下：
-- [基础知识](#基础知识)
-  - [分布式内存系统](#分布式内存系统)
-  - [第一个MPI程序](#第一个mpi程序)
-  - [常用函数](#常用函数)
-    - [MPI\_Init](#mpi_init)
-    - [MPI\_Finalize](#mpi_finalize)
-    - [MPI\_Comm\_size](#mpi_comm_size)
-    - [MPI\_Comm\_rank](#mpi_comm_rank)
-    - [MPI\_Send](#mpi_send)
-    - [MPI\_Recv](#mpi_recv)
-  - [注意事项](#注意事项)
-    - [是否阻塞](#是否阻塞)
-    - [不可超越](#不可超越)
-    - [局部变量](#局部变量)
-- [集合通信](#集合通信)
-  - [MPI\_Reduce](#mpi_reduce)
-  - [MPI\_Allreduce](#mpi_allreduce)
-  - [MPI\_Bcast](#mpi_bcast)
-  - [MPI\_Scatter](#mpi_scatter)
-  - [MPI\_Gather](#mpi_gather)
-  - [MPI\_Allgather](#mpi_allgather)
-- [派生数据类型](#派生数据类型)
-
 
 ## 基础知识
 

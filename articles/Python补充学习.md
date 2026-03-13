@@ -1,17 +1,5 @@
 这里是对Python的一些零散的补充学习笔记，主要是一些需要注意的点。
 
-- [函数的参数传递](#函数的参数传递)
-  - [核心机制：传对象引用](#核心机制传对象引用)
-  - [情况一：不可变对象（表现像“传值”）](#情况一不可变对象表现像传值)
-  - [情况二：可变对象（表现像“传引用”）](#情况二可变对象表现像传引用)
-- [Python的推导式](#python的推导式)
-  - [1. 列表推导式 (List Comprehension)](#1-列表推导式-list-comprehension)
-  - [2. 字典推导式 (Dictionary Comprehension)](#2-字典推导式-dictionary-comprehension)
-  - [3. 集合推导式 (Set Comprehension)](#3-集合推导式-set-comprehension)
-  - [4. 生成器表达式 (Generator Expression)](#4-生成器表达式-generator-expression)
-  - [总结与最佳实践](#总结与最佳实践)
-- [NO ENDING...](#no-ending)
-
 ## 函数的参数传递
 
 在 Python 中，关于参数传递是“传值”还是“传引用”的问题，最准确的描述既不是纯粹的“传值”（Pass by Value），也不是纯粹的“传引用”（Pass by Reference），而是 **“传对象引用”**（Pass by Object Reference）或者更通俗地称为 **“传赋值”**（Pass by Assignment）。

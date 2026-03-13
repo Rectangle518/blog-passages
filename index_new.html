@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Yuyang's Blog</title>
+  <link rel="icon" href="./images/icon/像素_小鸭.png" type="image/x-icon">
+
+  <!-- 字体 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+SC:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <!-- marked & highlight.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+  <!-- MathJax v3 配置：必须保证行内公式 $...$ 被识别，并且与 marked 兼容 -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],   // 明确指定行内公式定界符
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true,                        // 处理 \ 转义
+        processEnvironments: true
+      },
+      options: {
+        ignoreHtmlClass: 'tex2jax_ignore',           // 忽略某些区域
+        processHtmlClass: 'tex2jax_process'
+      },
+      startup: {
+        // 确保在页面完全加载后再渲染，避免与 marked 冲突
+        pageReady: () => {
+          console.log('MathJax 已准备就绪');
+          return MathJax.startup.defaultPageReady();
+        }
+      }
+    };
+  </script>
+  <!-- 加载 MathJax 核心 (tex-chtml 包含所需的所有组件) -->
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+
+  <style>
+    :root {
+      --bg:           #f7f6f2;
+      --surface:      #ffffff;
+      --surface-2:    #f0efe9;
+      --border:       #e4e2da;
+      --text:         #1a1916;
+      --text-2:       #6b6860;
+      --text-3:       #9c9a95;
+      --accent:       #c0392b;
+      --accent-light: #f9ebe9;
+      --accent-dark:  #922b21;
+      --sidebar-w:    280px;
+      --toc-w:        220px;
+      --radius:       8px;
+      --shadow:       0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.06);
+      --transition:   .22s cubic-bezier(.4,0,.2,1);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; font-size: 16px; }
+    body {
+      font-family: 'Noto Sans SC', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; text-decoration: none; }
+    img { max-width: 100%; display: block; }
+    button { cursor: pointer; font: inherit; border: none; background: none; }
+
+    #app { display: flex; min-height: 100vh; }
+
+    /* Sidebar (与之前完全一致，略作精简以便阅读，实际保持原样) */
+    #sidebar {
+      width: var(--sidebar-w);
+      flex-shrink: 0;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      padding: 40px 28px 32px;
+      z-index: 100;
+      transition: transform var(--transition);
+    }
+    .sidebar-avatar {
+      width: 72px; height: 72px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent) 0%, #e67e22 100%);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px;
+      color: #fff;
+      font-family: 'Lora', serif;
+      font-weight: 700;
+      box-shadow: 0 4px 16px rgba(192,57,43,.25);
+      margin-bottom: 20px;
+    }
+    .sidebar-name {
+      font-family: 'Lora', serif;
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+    .sidebar-bio {
+      font-size: .82rem;
+      color: var(--text-2);
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+    .sidebar-links {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 32px;
+    }
+    .sidebar-link {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      font-size: .82rem;
+      color: var(--text-2);
+      padding: 7px 10px;
+      border-radius: 6px;
+      transition: background var(--transition), color var(--transition);
+    }
+    .sidebar-link:hover { background: var(--surface-2); color: var(--text); }
+    .sidebar-link svg { width: 16px; height: 16px; flex-shrink: 0; opacity: .7; }
+    .sidebar-divider { border: none; border-top: 1px solid var(--border); margin: 0 0 24px; }
+    .sidebar-stat-label {
+      font-size: .72rem;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      color: var(--text-3);
+      margin-bottom: 10px;
+      font-weight: 500;
+    }
+    .sidebar-cats { display: flex; flex-direction: column; gap: 4px; }
+    .sidebar-cat-btn {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: .82rem;
+      color: var(--text-2);
+      transition: background var(--transition), color var(--transition);
+      text-align: left;
+      width: 100%;
+    }
+    .sidebar-cat-btn:hover,
+    .sidebar-cat-btn.active { background: var(--accent-light); color: var(--accent); }
+    .sidebar-cat-count {
+      font-size: .73rem;
+      background: var(--surface-2);
+      border-radius: 20px;
+      padding: 1px 7px;
+      color: var(--text-3);
+    }
+    .sidebar-cat-btn.active .sidebar-cat-count { background: var(--accent); color: #fff; }
+    .sidebar-footer {
+      margin-top: auto;
+      padding-top: 24px;
+      font-size: .72rem;
+      color: var(--text-3);
+    }
+
+    #menu-toggle {
+      display: none;
+      position: fixed;
+      top: 7px; left: 10px;
+      z-index: 200;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      width: 40px; height: 40px;
+      align-items: center; justify-content: center;
+      box-shadow: var(--shadow);
+    }
+    #menu-toggle svg { width: 20px; height: 20px; }
+    #sidebar-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.4);
+      z-index: 99;
+      backdrop-filter: blur(2px);
+    }
+
+    /* Main */
+    #main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+
+    #topbar {
+      position: sticky; top: 0; z-index: 50;
+      background: rgba(247,246,242,.9);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 32px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    #search-wrap { flex: 1; max-width: 400px; position: relative; }
+    #search-input {
+      width: 100%; height: 36px;
+      padding: 0 12px 2px 36px;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      background: var(--surface);
+      font-size: .85rem;
+      color: var(--text);
+      font-family: inherit;
+      outline: none;
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+    #search-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(192,57,43,.12);
+    }
+    #search-icon {
+      position: absolute; left: 11px; top: 50%;
+      transform: translateY(-50%);
+      width: 15px; height: 15px;
+      color: var(--text-3);
+      pointer-events: none;
+    }
+    #back-btn {
+      display: none;
+      align-items: center;
+      gap: 6px;
+      font-size: .85rem;
+      color: var(--text-2);
+      padding: 6px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      transition: all var(--transition);
+      white-space: nowrap;
+    }
+    #back-btn:hover { background: var(--surface-2); color: var(--text); }
+    #back-btn svg { width: 14px; height: 14px; }
+    #topbar-title {
+      font-size: .85rem;
+      font-weight: 500;
+      color: var(--text-2);
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    #content-area {
+      flex: 1;
+      padding: 40px 5%;
+      /* max-width: 1200px; */
+      width: 100%;
+    }
+
+    #list-view { display: block; max-width: 1200px; }
+    #post-view { display: none; }
+
+    .list-header { margin-bottom: 32px; }
+    .list-header h1 {
+      font-family: 'Lora', serif;
+      font-size: 1.75rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .list-header p { font-size: .88rem; color: var(--text-2); }
+
+    /* Article card */
+    .article-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px 28px;
+      margin-bottom: 16px;
+      cursor: pointer;
+      transition: box-shadow var(--transition), border-color var(--transition), transform var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+    .article-card::before {
+      content: '';
+      position: absolute; left: 0; top: 0; bottom: 0;
+      width: 3px;
+      background: var(--accent);
+      transform: scaleY(0);
+      transform-origin: bottom;
+      transition: transform var(--transition);
+      border-radius: 3px 0 0 3px;
+    }
+    .article-card:hover {
+      box-shadow: var(--shadow);
+      border-color: #d4d2ca;
+      transform: translateY(-2px);
+    }
+    .article-card:hover::before { transform: scaleY(1); }
+    .card-meta { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; flex-wrap: wrap; }
+    .card-date { font-size: .78rem; color: var(--text-3); font-family: 'JetBrains Mono', monospace; }
+    .card-category {
+      font-size: .73rem; font-weight: 500; color: var(--accent);
+      background: var(--accent-light); padding: 2px 9px; border-radius: 20px;
+    }
+    .card-title {
+      font-family: 'Lora', serif;
+      font-size: 1.15rem; font-weight: 600;
+      color: var(--text); margin-bottom: 8px; line-height: 1.4;
+      transition: color var(--transition);
+    }
+    .article-card:hover .card-title { color: var(--accent); }
+    .card-excerpt {
+      font-size: .87rem; color: var(--text-2); line-height: 1.65; margin-bottom: 14px;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .card-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+    .card-tag {
+      font-size: .73rem; color: var(--text-3);
+      background: var(--surface-2); padding: 2px 8px;
+      border-radius: 4px; border: 1px solid var(--border);
+    }
+
+    .state-box {
+      text-align: center; padding: 64px 32px; color: var(--text-3);
+    }
+    .state-box svg { width: 40px; height: 40px; margin: 0 auto 16px; opacity: .4; }
+    .state-box p { font-size: .9rem; }
+
+    /* Pagination */
+    #pagination {
+      display: flex; align-items: center; justify-content: center;
+      gap: 6px; margin-top: 32px; padding-bottom: 24px; flex-wrap: wrap;
+    }
+    .page-btn {
+      min-width: 36px; height: 36px;
+      border-radius: 6px; border: 1px solid var(--border);
+      background: var(--surface); font-size: .85rem; color: var(--text-2);
+      display: inline-flex; align-items: center; justify-content: center;
+      padding: 0 10px;
+      transition: all var(--transition);
+    }
+    .page-btn:hover:not(:disabled) { background: var(--surface-2); color: var(--text); }
+    .page-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+    .page-btn:disabled { opacity: .4; cursor: not-allowed; }
+    .page-ellipsis { color: var(--text-3); font-size: .85rem; padding: 0 4px; }
+
+    /* Post view */
+    #post-layout { 
+      display: flex; 
+      gap: 60px; 
+      align-items: flex-start; 
+      width: 100%;
+    }
+    #post-body { flex: 1; min-width: 0; }
+
+    #post-header { margin-bottom: 36px; padding-bottom: 28px; border-bottom: 1px solid var(--border); }
+    #post-category-badge {
+      display: inline-block; font-size: .75rem; font-weight: 500;
+      color: var(--accent); background: var(--accent-light);
+      padding: 3px 10px; border-radius: 20px; margin-bottom: 14px;
+    }
+    #post-title {
+      font-family: 'Lora', serif; font-size: 2rem; font-weight: 700;
+      color: var(--text); line-height: 1.3; margin-bottom: 14px;
+    }
+    #post-meta { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+    #post-date { font-size: .8rem; color: var(--text-3); font-family: 'JetBrains Mono', monospace; }
+    #post-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+    .post-tag {
+      font-size: .73rem; color: var(--text-3); background: var(--surface-2);
+      padding: 2px 8px; border-radius: 4px; border: 1px solid var(--border);
+    }
+
+    /* Markdown (MathJax 相关样式) */
+    #post-content { font-size: .95rem; line-height: 1.85; color: var(--text); }
+    #post-content h1, #post-content h2, #post-content h3, #post-content h4 {
+      font-family: 'Lora', serif; font-weight: 600; color: var(--text);
+      margin: 2.2em 0 .8em; line-height: 1.35;
+    }
+    #post-content h1 { font-size: 1.65rem; border-bottom: 2px solid var(--border); padding-bottom: 10px; }
+    #post-content h2 { font-size: 1.35rem; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+    #post-content h3 { font-size: 1.1rem; }
+    #post-content h4 { font-size: 1rem; }
+    #post-content p { margin-bottom: 1.2em; }
+    #post-content ul, #post-content ol { margin: 0 0 1.2em 1.5em; }
+    #post-content li { margin-bottom: .4em; }
+    #post-content blockquote {
+      border-left: 3px solid var(--accent); background: var(--accent-light);
+      margin: 1.4em 0; padding: 12px 20px;
+      border-radius: 0 6px 6px 0; color: var(--text-2); font-style: italic;
+    }
+    #post-content blockquote p { margin: 0; }
+    #post-content code {
+      font-family: 'JetBrains Mono', monospace; font-size: .84em;
+      background: var(--surface-2); border: 1px solid var(--border);
+      padding: 1px 5px; border-radius: 4px; color: var(--accent-dark);
+    }
+    #post-content pre {
+      background: var(--surface); border-radius: var(--radius);
+      padding: 20px; overflow-x: auto; margin: 1.4em 0;
+      border: 1px solid var(--border); position: relative;
+    }
+    #post-content pre code {
+      background: none; border: none; padding: 0; font-size: .85em; color: var(--text);
+    }
+    #post-content img {
+      max-width: 100%; border-radius: var(--radius); border: 1px solid var(--border);
+      margin: 1.4em auto; box-shadow: var(--shadow);
+    }
+    #post-content table { width: 100%; border-collapse: collapse; margin: 1.4em 0; font-size: .88rem; }
+    #post-content th {
+      background: var(--surface-2); font-weight: 600;
+      border: 1px solid var(--border); padding: 10px 14px; text-align: left;
+    }
+    #post-content td { border: 1px solid var(--border); padding: 8px 14px; }
+    #post-content tr:nth-child(even) td { background: var(--surface-2); }
+    #post-content a { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
+    #post-content a:hover { color: var(--accent-dark); }
+    #post-content hr { border: none; border-top: 1px solid var(--border); margin: 2em 0; }
+    
+    /* MathJax 行内公式与块级公式显示优化 */
+    .MathJax { outline: 0; }
+    mjx-container[jax="CHTML"][display="true"] { 
+      display: block; 
+      text-align: center; 
+      margin: 1.2em 0; 
+      overflow-x: auto; 
+      overflow-y: hidden;
+    }
+    mjx-container[jax="CHTML"][display="false"] { 
+      display: inline; 
+      margin: 0 0.1em; 
+    }
+    /* 确保行内公式不破坏行高 */
+    mjx-container[jax="CHTML"][display="false"] mjx-tex { 
+      white-space: nowrap; 
+    }
+
+    /* TOC */
+    #toc-sidebar {
+      width: calc(var(--toc-w) * 1.2);
+      flex-shrink: 0;
+      position: sticky; 
+      top: 72px;
+      max-height: calc(100vh - 88px); 
+      overflow-y: auto;
+    }
+    #toc-inner {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 18px 16px;
+    }
+    .toc-title {
+      font-size: .72rem; text-transform: uppercase; letter-spacing: .1em;
+      color: var(--text-3); font-weight: 600; margin-bottom: 12px;
+    }
+    #toc-list { list-style: none; display: flex; flex-direction: column; gap: 2px; }
+    .toc-item a {
+      display: block; font-size: .8rem; color: var(--text-2);
+      padding: 4px 8px; border-radius: 5px; border-left: 2px solid transparent;
+      transition: all var(--transition); line-height: 1.45;
+    }
+    .toc-item a:hover { background: var(--surface-2); color: var(--text); }
+    .toc-item.active a { color: var(--accent); border-left-color: var(--accent); background: var(--accent-light); }
+    .toc-item.h2 a { padding-left: 14px; }
+    .toc-item.h3 a { padding-left: 22px; font-size: .76rem; color: var(--text-3); }
+
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: #c9c7bf; }
+
+    .spinner {
+      width: 32px; height: 32px;
+      border: 3px solid var(--border); border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+      margin: 60px auto;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .copy-btn {
+      position: absolute; top: 10px; right: 12px;
+      font-size: .72rem; font-family: 'JetBrains Mono', monospace;
+      color: #888; background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 5px; padding: 3px 9px; cursor: pointer;
+      transition: all .2s;
+    }
+    .copy-btn:hover { background: rgba(255,255,255,.18); color: #ccc; }
+    .copy-btn.copied { color: #a6e3a1; border-color: #a6e3a1; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .fade-up { animation: fadeUp .3s ease both; }
+
+    @media (max-width: 1100px) { 
+      #toc-sidebar { 
+        display: none; 
+      } 
+    }
+    @media (max-width: 992px) { 
+      #toc-sidebar { 
+        display: none; 
+      } 
+      #post-layout { 
+        gap: 40px; 
+      }
+    }
+    @media (max-width: 768px) {
+      #sidebar {
+        position: fixed; left: 0; top: 0; bottom: 0;
+        transform: translateX(-100%); z-index: 150;
+      }
+      #sidebar.open { transform: translateX(0); }
+      #sidebar-overlay.open { display: block; }
+      #menu-toggle { display: flex; }
+      #topbar { padding: 0 16px 0 57px; }
+      #content-area { padding: 24px 16px; }
+      #post-title { font-size: 1.5rem; }
+    }
+    @media (max-width: 500px) {
+      #post-title { font-size: 1.3rem; }
+      .article-card { padding: 18px 16px; }
+    }
+  </style>
+</head>
+
+<body>
+<div id="app">
+
+  <div id="sidebar-overlay" onclick="closeSidebar()"></div>
+  <button id="menu-toggle" onclick="toggleSidebar()" aria-label="菜单">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+    </svg>
+  </button>
+
+  <aside id="sidebar">
+    <div class="sidebar-avatar">L</div>
+    <div class="sidebar-name">卢宇扬</div>
+    <div class="sidebar-bio">中山大学2024级本科生一枚，记录学习过程中的思考与实践。</div>
+
+    <div class="sidebar-links">
+      <a class="sidebar-link" href="https://github.com/Rectangle518" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.17 6.839 9.49.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.604-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.464-1.11-1.464-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.115 2.504.337 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.202 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.741 0 .267.18.578.688.48C19.138 20.167 22 16.418 22 12c0-5.523-4.477-10-10-10z"/></svg>
+        GitHub
+      </a>
+      <a class="sidebar-link" href="mailto:luyy86@mail2.sysu.edu.cn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="2,4 12,13 22,4"/></svg>
+        Email
+      </a>
+    </div>
+
+    <hr class="sidebar-divider">
+    <div class="sidebar-stat-label">文章分类</div>
+    <div class="sidebar-cats" id="sidebar-cats"></div>
+
+    <div class="sidebar-footer">
+      © <span id="year"></span> My Blog · Built with Claude
+    </div>
+  </aside>
+
+  <div id="main">
+    <div id="topbar">
+      <button id="back-btn" onclick="goHome()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+        返回列表
+      </button>
+      <div id="topbar-title"></div>
+      <div id="search-wrap">
+        <svg id="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input id="search-input" type="text" placeholder="搜索文章" oninput="onSearch()" />
+      </div>
+    </div>
+
+    <div id="content-area">
+
+      <div id="list-view">
+        <div class="list-header">
+          <h1>Yuyang's Blog</h1>
+          <p id="list-subtitle">加载中…</p>
+        </div>
+        <div id="articles-list"></div>
+        <div id="pagination"></div>
+      </div>
+
+      <div id="post-view">
+        <div id="post-layout">
+          <div id="post-body">
+            <div id="post-header">
+              <div id="post-category-badge"></div>
+              <h1 id="post-title"></h1>
+              <div id="post-meta">
+                <span id="post-date"></span>
+                <div id="post-tags"></div>
+              </div>
+            </div>
+            <div id="post-content"></div>
+          </div>
+          <aside id="toc-sidebar">
+            <div id="toc-inner">
+              <div class="toc-title">目录</div>
+              <ul id="toc-list"></ul>
+            </div>
+          </aside>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+/* ─── State ─────────────────────────────────────────────── */
+let allArticles    = [];
+let filtered       = [];
+let currentPage    = 1;
+const PAGE_SIZE    = 8;
+let activeCategory = null;
+let searchQuery    = '';
+let tocObserver    = null;
+
+/* ─── Init ───────────────────────────────────────────────── */
+document.getElementById('year').textContent = new Date().getFullYear();
+
+async function init() {
+  await loadIndex();
+  window.addEventListener('hashchange', onHashChange);
+  onHashChange();
+}
+
+async function loadIndex() {
+  try {
+    const res = await fetch('./articles-index.json');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    allArticles = await res.json();
+    allArticles.sort((a, b) => new Date(b.date) - new Date(a.date));
+    buildSidebarCats();
+    updateFiltered();
+  } catch (e) {
+    document.getElementById('articles-list').innerHTML =
+      `<div class="state-box"><p>无法加载文章索引，请检查 articles-index.json 是否存在。<br><small>${e.message}</small></p></div>`;
+    document.getElementById('list-subtitle').textContent = '';
+  }
+}
+
+/* ─── Sidebar categories ──────────────────────────────────── */
+function buildSidebarCats() {
+  const counts = {};
+  allArticles.forEach(a => {
+    const c = a.category || '未分类';
+    counts[c] = (counts[c] || 0) + 1;
+  });
+  const container = document.getElementById('sidebar-cats');
+  container.innerHTML = '';
+  container.appendChild(createCatBtn('全部', allArticles.length, null));
+  Object.entries(counts).forEach(([cat, n]) => container.appendChild(createCatBtn(cat, n, cat)));
+}
+
+function createCatBtn(label, count, value) {
+  const btn = document.createElement('button');
+  btn.className = 'sidebar-cat-btn' + (value === activeCategory ? ' active' : '');
+  btn.innerHTML = `<span>${label}</span><span class="sidebar-cat-count">${count}</span>`;
+  btn.onclick = () => {
+    activeCategory = value;
+    currentPage = 1;
+    updateFiltered();
+    renderList();
+    document.querySelectorAll('.sidebar-cat-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    if (window.innerWidth <= 768) closeSidebar();
+  };
+  return btn;
+}
+
+/* ─── Filter ─────────────────────────────────────────────── */
+function updateFiltered() {
+  filtered = allArticles.filter(a => {
+    const matchCat = !activeCategory || (a.category || '未分类') === activeCategory;
+    const q = searchQuery.toLowerCase();
+    const matchQ = !q
+      || (a.title   || '').toLowerCase().includes(q)
+      || (a.excerpt || '').toLowerCase().includes(q);
+    return matchCat && matchQ;
+  });
+}
+
+function onSearch() {
+  searchQuery = document.getElementById('search-input').value;
+  currentPage = 1;
+  updateFiltered();
+  renderList();
+}
+
+/* ─── Routing ────────────────────────────────────────────── */
+function onHashChange() {
+  const hash = location.hash;
+  if (hash.startsWith('#post=')) {
+    const file = decodeURIComponent(hash.slice(6));
+    showPost(file);
+  } else {
+    showList();
+  }
+}
+
+function goHome() {
+  history.pushState(null, '', location.pathname);
+  showList();
+}
+
+/* ─── List view ──────────────────────────────────────────── */
+function showList() {
+  document.getElementById('list-view').style.display  = 'block';
+  document.getElementById('post-view').style.display  = 'none';
+  document.getElementById('back-btn').style.display   = 'none';
+  document.getElementById('search-wrap').style.display = '';
+  document.getElementById('topbar-title').textContent = '';
+  renderList();
+}
+
+function renderList() {
+  updateSubtitle();
+  const container = document.getElementById('articles-list');
+
+  if (filtered.length === 0) {
+    container.innerHTML = `
+      <div class="state-box fade-up">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <p>没有找到相关文章</p>
+      </div>`;
+    document.getElementById('pagination').innerHTML = '';
+    return;
+  }
+
+  const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
+  if (currentPage > totalPages) currentPage = 1;
+  const page = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
+  container.innerHTML = page.map((a, i) => {
+    const fname = encodeURIComponent(getFilename(a.file));
+    const tags = (a.tags || []).map(t => `<span class="card-tag">${t}</span>`).join('');
+    return `
+    <div class="article-card fade-up" style="animation-delay:${i * 40}ms" onclick="navigate('${fname}')">
+      <div class="card-meta">
+        <span class="card-date">${a.date || ''}</span>
+        ${a.category ? `<span class="card-category">${a.category}</span>` : ''}
+      </div>
+      <div class="card-title">${a.title || '无标题'}</div>
+      ${a.excerpt ? `<div class="card-excerpt">${a.excerpt}</div>` : ''}
+      ${tags ? `<div class="card-tags">${tags}</div>` : ''}
+    </div>`;
+  }).join('');
+
+  renderPagination(totalPages);
+}
+
+function updateSubtitle() {
+  const parts = [];
+  if (activeCategory) parts.push('分类：' + activeCategory);
+  if (searchQuery)    parts.push('搜索：' + searchQuery);
+  document.getElementById('list-subtitle').textContent =
+    parts.length ? `${parts.join(' · ')} · 共 ${filtered.length} 篇` : `共 ${filtered.length} 篇文章`;
+}
+
+function renderPagination(total) {
+  const el = document.getElementById('pagination');
+  if (total <= 1) { el.innerHTML = ''; return; }
+
+  let html = `<button class="page-btn" onclick="gotoPage(${currentPage-1})" ${currentPage===1?'disabled':''}>
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+  </button>`;
+
+  buildPageRange(currentPage, total).forEach(p => {
+    if (p === '…') html += `<span class="page-ellipsis">…</span>`;
+    else html += `<button class="page-btn ${p===currentPage?'active':''}" onclick="gotoPage(${p})">${p}</button>`;
+  });
+
+  html += `<button class="page-btn" onclick="gotoPage(${currentPage+1})" ${currentPage===total?'disabled':''}>
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+  </button>`;
+  el.innerHTML = html;
+}
+
+function buildPageRange(cur, total) {
+  if (total <= 7) return Array.from({length: total}, (_, i) => i + 1);
+  const set = new Set([1, total, cur, cur-1, cur+1].filter(p => p >= 1 && p <= total));
+  const sorted = [...set].sort((a,b) => a-b);
+  const result = [];
+  let prev = 0;
+  sorted.forEach(p => { if (p - prev > 1) result.push('…'); result.push(p); prev = p; });
+  return result;
+}
+
+function gotoPage(p) {
+  currentPage = p;
+  renderList();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function navigate(filename) { location.hash = '#post=' + filename; }
+function getFilename(fp) { return (fp || '').split('/').pop(); }
+
+/* ─── Post view ──────────────────────────────────────────── */
+async function showPost(filename) {
+  document.getElementById('list-view').style.display  = 'none';
+  document.getElementById('post-view').style.display  = 'block';
+  document.getElementById('back-btn').style.display   = 'flex';
+  document.getElementById('search-wrap').style.display = 'none';
+
+  const meta = allArticles.find(a => getFilename(a.file) === filename) || {};
+  document.getElementById('topbar-title').textContent = meta.title || filename;
+
+  const catBadge = document.getElementById('post-category-badge');
+  catBadge.textContent    = meta.category || '';
+  catBadge.style.display  = meta.category ? '' : 'none';
+  document.getElementById('post-title').textContent = meta.title || filename;
+  document.getElementById('post-date').textContent  = meta.date  || '';
+  document.getElementById('post-tags').innerHTML    = (meta.tags || [])
+    .map(t => `<span class="post-tag">${t}</span>`).join('');
+
+  const contentEl = document.getElementById('post-content');
+  contentEl.innerHTML = '<div class="spinner"></div>';
+  document.getElementById('toc-list').innerHTML = '';
+
+  try {
+    let res = await fetch(meta.file || ('./articles/' + filename));
+    if (!res.ok) res = await fetch('./articles/' + filename);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const md = await res.text();
+    
+    // 使用 MathJax 渲染，现在行内公式应该正常
+    renderMarkdownWithMathJax(md);
+    
+    buildTOC();
+    window.scrollTo({ top: 0 });
+  } catch (e) {
+    contentEl.innerHTML = `<div class="state-box"><p>无法加载文章：${filename}<br><small>${e.message}</small></p></div>`;
+  }
+}
+
+/* ─── Markdown 渲染 (使用 MathJax) ───────────────────────── */
+function renderMarkdownWithMathJax(md) {
+  const contentEl = document.getElementById('post-content');
+  
+  // 配置 marked：使用默认设置，不转义 $，保留原始定界符
+  marked.setOptions({
+    breaks: true,
+    gfm: true,
+  });
+
+  // 自定义渲染器 (代码高亮)
+  const renderer = new marked.Renderer();
+  renderer.code = function(code, language) {
+    const lang = (language || '').trim();
+    let highlighted;
+    if (lang && hljs.getLanguage(lang)) {
+      try { highlighted = hljs.highlight(code, { language: lang }).value; }
+      catch(_) { highlighted = hljs.highlightAuto(code).value; }
+    } else {
+      highlighted = hljs.highlightAuto(code).value;
+    }
+    return `<pre><code class="hljs ${lang ? 'language-' + lang : ''}">${highlighted}</code></pre>`;
+  };
+
+  // 渲染 HTML
+  contentEl.innerHTML = marked.parse(md, { renderer });
+
+  // 添加复制按钮
+  contentEl.querySelectorAll('pre').forEach(pre => {
+    const btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.textContent = 'copy';
+    btn.onclick = () => {
+      const text = pre.querySelector('code')?.innerText || '';
+      navigator.clipboard.writeText(text).then(() => {
+        btn.textContent = 'copied!';
+        btn.classList.add('copied');
+        setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('copied'); }, 2000);
+      }).catch(() => {});
+    };
+    pre.appendChild(btn);
+  });
+
+  // 调用 MathJax 重新渲染整个 contentEl 区域，确保行内公式被处理
+  if (window.MathJax) {
+    // 使用 MathJax 的 typesetPromise 来保证异步渲染完成
+    MathJax.typesetPromise([contentEl]).catch(err => console.warn('MathJax 渲染错误:', err));
+  } else {
+    // 如果 MathJax 尚未加载，等待并重试
+    const checkMathJax = setInterval(() => {
+      if (window.MathJax) {
+        clearInterval(checkMathJax);
+        MathJax.typesetPromise([contentEl]).catch(err => console.warn('MathJax 渲染错误:', err));
+      }
+    }, 100);
+  }
+}
+
+/* ─── TOC ────────────────────────────────────────────────── */
+function buildTOC() {
+  const contentEl = document.getElementById('post-content');
+  const tocList   = document.getElementById('toc-list');
+  const tocSidebar = document.getElementById('toc-sidebar');
+  const headings  = contentEl.querySelectorAll('h1, h2, h3');
+  tocList.innerHTML = '';
+
+  if (headings.length === 0) { tocSidebar.style.display = 'none'; return; }
+  tocSidebar.style.display = '';
+
+  const items = [];
+  headings.forEach((h, i) => {
+    const id = 'heading-' + i;
+    h.id = id;
+    const level = h.tagName.toLowerCase();
+    const li = document.createElement('li');
+    li.className = 'toc-item ' + level;
+    li.dataset.id = id;
+    const a = document.createElement('a');
+    a.href = '#' + id;
+    a.textContent = h.textContent;
+    a.onclick = (e) => { e.preventDefault(); document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
+    li.appendChild(a);
+    tocList.appendChild(li);
+    items.push({ el: h });
+  });
+
+  if (tocObserver) tocObserver.disconnect();
+  tocObserver = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        document.querySelectorAll('.toc-item.active').forEach(el => el.classList.remove('active'));
+        const li = tocList.querySelector(`[data-id="${entry.target.id}"]`);
+        if (li) li.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-10% 0px -80% 0px' });
+
+  items.forEach(({ el }) => tocObserver.observe(el));
+}
+
+/* ─── Mobile sidebar ─────────────────────────────────────── */
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebar-overlay').classList.toggle('open');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('open');
+}
+
+/* ─── Boot ───────────────────────────────────────────────── */
+init();
+</script>
+</body>
+</html>
