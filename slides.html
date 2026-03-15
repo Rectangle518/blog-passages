@@ -6,1378 +6,982 @@
   <title>Markdown Slides - Yuyang's Blog</title>
   <link rel="icon" href="./images/icon/像素_小鸭.png" type="image/x-icon">
 
-  <!-- 字体 -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+SC:wght@300;400;500;600&display=swap" rel="stylesheet">
 
-  <!-- marked & highlight.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 
-  <!-- MathJax v3 -->
+  <!-- MathJax: $...$ inline and $$...$$ display LaTeX -->
   <script>
     window.MathJax = {
       tex: {
-        inlineMath: [['$', '$'], ['\(', '\)']],
-        displayMath: [['$$', '$$'], ['\[', '\]']],
+        inlineMath:  [['$','$'], ['\\(','\\)']],
+        displayMath: [['$$','$$'], ['\\[','\\]']],
         processEscapes: true,
         processEnvironments: true
       },
       options: {
-        ignoreHtmlClass: 'tex2jax_ignore',
-        processHtmlClass: 'tex2jax_process'
+        skipHtmlTags: ['script','noscript','style','textarea','pre','code']
       }
     };
   </script>
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script async id="MathJax-script"
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+  </script>
 
   <style>
+    /* ══════════════════════════════════════════════════════
+       THEME VARIABLES
+    ══════════════════════════════════════════════════════ */
     :root {
-      --bg:           #f7f6f2;
-      --surface:      #ffffff;
-      --surface-2:    #f0efe9;
-      --border:       #e4e2da;
-      --text:         #1a1916;
-      --text-2:       #6b6860;
-      --text-3:       #9c9a95;
-      --accent:       #c0392b;
-      --accent-light: #f9ebe9;
-      --accent-dark:  #922b21;
-      --radius:       8px;
-      --shadow:       0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.06);
-      --transition:   .22s cubic-bezier(.4,0,.2,1);
+      --bg:            #f7f6f2;
+      --surface:       #ffffff;
+      --surface-2:     #f0efe9;
+      --border:        #e4e2da;
+      --text:          #1a1916;
+      --text-2:        #6b6860;
+      --text-3:        #9c9a95;
+      --accent:        #c0392b;
+      --accent-light:  #f9ebe9;
+      --accent-dark:   #922b21;
+      --accent-rgb:    192,57,43;
+      --font-display:  'Lora', serif;
+      --font-body:     'Noto Sans SC', sans-serif;
+      --font-mono:     'JetBrains Mono', monospace;
+      --topbar-bg:     rgba(247,246,242,.92);
+      --radius:        8px;
+      --shadow:        0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.06);
+      --transition:    .22s cubic-bezier(.4,0,.2,1);
+      --thumb-w:       192px;
     }
 
+    /* ══════════════════════════════════════════════════════
+       BASE
+    ══════════════════════════════════════════════════════ */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; font-size: 16px; }
+    html { font-size: 16px; }
     body {
-      font-family: 'Noto Sans SC', sans-serif;
+      font-family: var(--font-body);
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
       line-height: 1.7;
       -webkit-font-smoothing: antialiased;
-      overflow: hidden;
     }
     a { color: inherit; text-decoration: none; }
     button { cursor: pointer; font: inherit; border: none; background: none; }
 
-    #app { 
-      display: flex; 
-      height: 100vh;
-      width: 100vw;
-    }
-
-    /* 顶部工具栏 */
-    #toolbar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 56px;
-      background: rgba(247,246,242,.95);
+    /* ══════════════════════════════════════════════════════
+       TOPBAR
+    ══════════════════════════════════════════════════════ */
+    #topbar {
+      position: sticky; top: 0; z-index: 50;
+      background: var(--topbar-bg);
       backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--border);
+      padding: 0 20px;
+      height: 52px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .topbar-brand {
+      font-family: var(--font-display);
+      font-size: 1rem; font-weight: 600; color: var(--text);
+      display: flex; align-items: center; gap: 7px;
+    }
+    .brand-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--accent); flex-shrink: 0;
+    }
+    .topbar-spacer { flex: 1; }
+    .topbar-btn {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: .79rem; color: var(--text-2);
+      padding: 5px 11px; border-radius: 6px;
+      border: 1px solid var(--border); background: var(--surface);
+      transition: all var(--transition); white-space: nowrap; text-decoration: none;
+    }
+    .topbar-btn:hover { background: var(--surface-2); color: var(--text); }
+    .topbar-btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .topbar-btn.primary:hover { background: var(--accent-dark); border-color: var(--accent-dark); }
+    .topbar-btn svg { width: 13px; height: 13px; flex-shrink: 0; }
+
+    /* ══════════════════════════════════════════════════════
+       LAYOUT
+    ══════════════════════════════════════════════════════ */
+    #app {
       display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 24px;
-      z-index: 1000;
+      height: calc(100vh - 52px);
+      overflow: hidden;
     }
 
-    .toolbar-left {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-
-    .logo {
-      font-family: 'Lora', serif;
-      font-size: 1.25rem;
-      font-weight: 600;
-      color: var(--text);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .logo-icon {
-      width: 32px;
-      height: 32px;
-      background: linear-gradient(135deg, var(--accent) 0%, #e67e22 100%);
-      border-radius: 6px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-weight: 700;
-      font-size: 14px;
-    }
-
-    .toolbar-actions {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 8px 16px;
-      border-radius: 6px;
-      font-size: .85rem;
-      font-weight: 500;
-      transition: all var(--transition);
-      border: 1px solid var(--border);
-      background: var(--surface);
-      color: var(--text-2);
-    }
-
-    .btn:hover {
-      background: var(--surface-2);
-      color: var(--text);
-    }
-
-    .btn-primary {
-      background: var(--accent);
-      border-color: var(--accent);
-      color: white;
-    }
-
-    .btn-primary:hover {
-      background: var(--accent-dark);
-    }
-
-    .btn svg {
-      width: 16px;
-      height: 16px;
-    }
-
-    .slide-counter {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: .85rem;
-      color: var(--text-2);
-      background: var(--surface-2);
-      padding: 6px 12px;
-      border-radius: 20px;
-      border: 1px solid var(--border);
-    }
-
-    /* 主内容区 */
-    #main {
-      display: flex;
-      width: 100%;
-      height: calc(100vh - 56px);
-      margin-top: 56px;
-    }
-
-    /* 编辑器区域 */
-    #editor-panel {
-      width: 40%;
-      min-width: 300px;
-      max-width: 600px;
-      background: var(--surface);
+    /* ══════════════════════════════════════════════════════
+       EDITOR PANE
+    ══════════════════════════════════════════════════════ */
+    #editor-pane {
+      width: 38%; min-width: 260px; flex-shrink: 0;
+      display: flex; flex-direction: column;
       border-right: 1px solid var(--border);
-      display: flex;
-      flex-direction: column;
-      transition: width var(--transition);
+      background: var(--surface);
     }
-
-    .panel-header {
-      padding: 16px 20px;
+    .editor-toolbar {
+      padding: 0 12px 0 16px; height: 42px;
       border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: var(--surface-2);
+      display: flex; align-items: center; gap: 5px; flex-shrink: 0;
+    }
+    .pane-label {
+      font-size: .67rem; text-transform: uppercase;
+      letter-spacing: .1em; color: var(--text-3);
+      font-weight: 600; white-space: nowrap;
+    }
+    .toolbar-spacer { flex: 1; }
+    .tb-btn {
+      display: inline-flex; align-items: center; gap: 4px;
+      height: 26px; padding: 0 8px;
+      border-radius: 5px; border: 1px solid var(--border);
+      background: var(--bg); font-size: .73rem; color: var(--text-2);
+      white-space: nowrap; transition: all var(--transition); cursor: pointer;
+      text-decoration: none;
+    }
+    .tb-btn:hover { background: var(--surface-2); color: var(--text); }
+    .tb-btn svg { width: 12px; height: 12px; flex-shrink: 0; }
+    .tb-btn.del:hover { background: #fef2f2; color: #c0392b; border-color: #f5c6c3; }
+
+    #editor-textarea {
+      flex: 1; width: 100%; padding: 16px 18px;
+      border: none; outline: none; resize: none;
+      font-family: var(--font-mono); font-size: .82rem; line-height: 1.75;
+      color: var(--text); background: var(--surface); tab-size: 2;
+    }
+    #editor-textarea::placeholder { color: var(--text-3); }
+    .editor-footer {
+      padding: 5px 16px; border-top: 1px solid var(--border);
+      font-size: .68rem; color: var(--text-3);
+      display: flex; align-items: center; gap: 3px; flex-wrap: wrap;
+    }
+    .sep-hint {
+      font-family: var(--font-mono);
+      background: var(--surface-2); border: 1px solid var(--border);
+      border-radius: 3px; padding: 0 5px;
+      font-size: .68rem; color: var(--accent);
     }
 
-    .panel-title {
-      font-size: .85rem;
-      font-weight: 600;
-      color: var(--text);
-      display: flex;
-      align-items: center;
-      gap: 8px;
+    /* ══════════════════════════════════════════════════════
+       RESIZER
+    ══════════════════════════════════════════════════════ */
+    #resizer {
+      width: 1px; cursor: col-resize;
+      background: var(--border); flex-shrink: 0;
+      transition: background var(--transition);
     }
+    #resizer:hover, #resizer.dragging { background: var(--accent); }
 
-    .panel-title svg {
-      width: 16px;
-      height: 16px;
-      color: var(--accent);
+    /* ══════════════════════════════════════════════════════
+       PREVIEW PANE
+    ══════════════════════════════════════════════════════ */
+    #preview-pane {
+      flex: 1; min-width: 0;
+      display: flex; flex-direction: column;
+      background: var(--bg); overflow: hidden;
     }
-
-    .panel-actions {
-      display: flex;
-      gap: 8px;
+    .preview-toolbar {
+      height: 42px; padding: 0 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 8px; flex-shrink: 0;
     }
-
-    .icon-btn {
-      width: 28px;
-      height: 28px;
-      border-radius: 6px;
-      border: 1px solid var(--border);
-      background: var(--surface);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--text-2);
-      transition: all var(--transition);
+    .slide-counter {
+      font-family: var(--font-mono); font-size: .73rem;
+      color: var(--text-3); margin-left: auto;
     }
+    .slide-counter b { color: var(--accent); font-weight: 600; }
 
-    .icon-btn:hover {
-      background: var(--accent-light);
-      color: var(--accent);
-      border-color: var(--accent);
-    }
-
-    .icon-btn svg {
-      width: 14px;
-      height: 14px;
-    }
-
-    #editor {
-      flex: 1;
-      width: 100%;
-      padding: 20px;
-      border: none;
-      outline: none;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: .9rem;
-      line-height: 1.8;
-      color: var(--text);
-      background: var(--surface);
-      resize: none;
-      tab-size: 2;
-    }
-
-    #editor::placeholder {
-      color: var(--text-3);
-    }
-
-    /* 预览区域 */
-    #preview-panel {
-      flex: 1;
-      background: var(--bg);
-      display: flex;
-      flex-direction: column;
-      position: relative;
-      overflow: hidden;
-    }
-
-    #slides-container {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 40px;
-      position: relative;
-    }
-
-    .slide-wrapper {
-      width: 100%;
-      max-width: 960px;
-      aspect-ratio: 16/9;
-      background: var(--surface);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      border: 1px solid var(--border);
-      overflow: hidden;
-      position: relative;
-    }
-
-    .slide {
-      width: 100%;
-      height: 100%;
-      padding: 4vw 6vw;
+    #preview-scroll {
+      flex: 1; min-height: 0;
       overflow-y: auto;
-      display: none;
+      padding: 28px 32px 40px;
+      display: flex; flex-direction: column; gap: 36px;
     }
 
-    .slide.active {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
+    #empty-state {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 48px 24px; color: var(--text-3); text-align: center;
     }
+    #empty-state svg { width: 40px; height: 40px; margin-bottom: 14px; opacity: .28; }
+    #empty-state p { font-size: .86rem; line-height: 1.75; }
+    #empty-state strong { color: var(--text-2); }
+    #empty-state.hidden { display: none; }
 
-    /* Markdown 样式 - 使用 clamp() 实现响应式字号 */
+    /* ══════════════════════════════════════════════════════
+       SLIDE CARD (preview)
+    ══════════════════════════════════════════════════════ */
+    .slide-card {
+      flex-shrink: 0; width: 100%; aspect-ratio: 16 / 9;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; box-shadow: var(--shadow);
+      display: flex; align-items: center; justify-content: center;
+      padding: 40px 56px;
+      position: relative; 
+      /* cursor: pointer;  */
+      overflow: hidden;
+      transition: box-shadow var(--transition), border-color var(--transition), transform var(--transition);
+    }
+    .slide-card::before {
+      content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+      background: var(--accent); transform: scaleY(0); transform-origin: bottom;
+      transition: transform var(--transition); border-radius: 3px 0 0 3px;
+    }
+    /* .slide-card:hover { box-shadow: 0 8px 32px rgba(0,0,0,.1); transform: translateY(-2px); } */
+    /* .slide-card:hover::before { transform: scaleY(1); } */
+    .slide-card.active-slide {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(var(--accent-rgb),.15), 0 4px 20px rgba(var(--accent-rgb),.1);
+    }
+    .slide-card.active-slide::before { transform: scaleY(1); }
+
+    .slide-num {
+      position: absolute; top: 11px; left: 15px;
+      font-family: var(--font-mono); font-size: .67rem;
+      color: var(--text-3); opacity: .45;
+    }
+    .slide-fs-btn {
+      position: absolute; top: 8px; right: 11px;
+      width: 26px; height: 26px; border-radius: 5px;
+      background: var(--surface-2); border: 1px solid var(--border);
+      color: var(--text-3); display: flex; align-items: center; justify-content: center;
+      opacity: 0; transition: opacity var(--transition), background var(--transition), color var(--transition);
+    }
+    .slide-card:hover .slide-fs-btn { opacity: 1; }
+    .slide-fs-btn:hover { background: var(--accent-light); color: var(--accent); }
+    .slide-fs-btn svg { width: 11px; height: 11px; }
+
+    /* slide content typography */
     .slide-content {
-      font-size: clamp(1rem, 2.5vw, 2.5rem);
-      line-height: 1.5;
-      color: var(--text);
-      width: 100%;
-      max-width: 100%;
+      width: 100%; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 0.48em; text-align: center;
     }
+    .slide-content h1 { font-family: var(--font-display); font-size: clamp(1.4rem, 2.6vw, 2.3rem); font-weight: 700; color: var(--text); line-height: 1.22; text-align: center; }
+    .slide-content h2 { font-family: var(--font-display); font-size: clamp(1.05rem, 1.9vw, 1.8rem); font-weight: 600; color: var(--text); line-height: 1.28; text-align: center; }
+    .slide-content h3 { font-family: var(--font-display); font-size: clamp(.9rem, 1.6vw, 1.42rem); font-weight: 600; color: var(--text-2); line-height: 1.3; text-align: center; }
+    .slide-content p { font-size: clamp(.8rem, 1.3vw, 1.22rem); color: var(--text-2); line-height: 1.6; text-align: center; max-width: 86%; }
+    .slide-content ul, .slide-content ol { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 0.24em; }
+    .slide-content li { font-size: clamp(.78rem, 1.25vw, 1.15rem); color: var(--text-2); text-align: center; line-height: 1.5; }
+    .slide-content li::before { content: '·  '; color: var(--accent); font-weight: 700; }
+    .slide-content blockquote { border-left: 3px solid var(--accent); background: var(--accent-light); padding: 7px 15px; border-radius: 0 5px 5px 0; font-style: italic; color: var(--text-2); font-size: clamp(.78rem, 1.25vw, 1.1rem); text-align: center; max-width: 82%; }
+    .slide-content blockquote p { font-size: inherit; color: inherit; max-width: 100%; }
+    .slide-content code { font-family: var(--font-mono); font-size: .83em; background: var(--surface-2); border: 1px solid var(--border); padding: 1px 5px; border-radius: 3px; color: var(--accent-dark); }
+    .slide-content pre { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius); padding: 9px 13px; overflow-x: auto; text-align: left; max-width: 90%; width: 100%; }
+    .slide-content pre code { background: none; border: none; padding: 0; font-size: clamp(.63rem, .92vw, .8rem); }
+    .slide-content hr { width: 38px; border: none; border-top: 2px solid var(--accent); margin: 0.15em auto; }
+    .slide-content strong { color: var(--accent-dark); }
 
-    .slide-content * {
-      text-align: center;
-    }
-
-    .slide-content h1 {
-      font-family: 'Lora', serif;
-      font-size: clamp(2rem, 5vw, 5rem);
-      font-weight: 700;
-      color: var(--text);
-      margin-bottom: 0.5em;
-      line-height: 1.2;
-      border-bottom: none;
-      padding-bottom: 0;
-    }
-
-    .slide-content h2 {
-      font-family: 'Lora', serif;
-      font-size: clamp(1.8rem, 4vw, 4rem);
-      font-weight: 600;
-      color: var(--text);
-      margin: 0.8em 0 0.5em;
-      line-height: 1.3;
-    }
-
-    .slide-content h3 {
-      font-family: 'Lora', serif;
-      font-size: clamp(1.5rem, 3vw, 3rem);
-      font-weight: 600;
-      color: var(--text-2);
-      margin: 0.6em 0 0.4em;
-    }
-
-    .slide-content p {
-      margin-bottom: 0.8em;
-      font-size: clamp(1rem, 2.5vw, 2.5rem);
-    }
-
-    .slide-content ul, .slide-content ol {
-      margin: 0.5em 0;
-      padding-left: 0;
-      list-style-position: inside;
-      display: inline-block;
-      text-align: left;
-    }
-
-    .slide-content li {
-      margin-bottom: 0.4em;
-      font-size: clamp(0.9rem, 2.2vw, 2.2rem);
-      text-align: left;
-    }
-
-    .slide-content blockquote {
-      border-left: none;
-      background: transparent;
-      margin: 1em 0;
-      padding: 0;
-      color: var(--text-2);
-      font-style: italic;
-      font-size: clamp(1.2rem, 3vw, 3rem);
-    }
-
-    .slide-content blockquote::before {
-      content: '"';
-      font-size: clamp(2rem, 5vw, 5rem);
-      color: var(--accent);
-      line-height: 0;
-      vertical-align: middle;
-      margin-right: 0.2em;
-    }
-
-    .slide-content code {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.85em;
-      background: var(--surface-2);
-      border: 1px solid var(--border);
-      padding: 0.1em 0.3em;
-      border-radius: 4px;
-      color: var(--accent-dark);
-    }
-
-    .slide-content pre {
-      background: var(--surface-2);
-      border-radius: var(--radius);
-      padding: 2vw;
-      overflow-x: auto;
-      margin: 1em auto;
-      border: 1px solid var(--border);
-      max-width: 90%;
-      text-align: left;
-    }
-
-    .slide-content pre code {
-      background: none;
-      border: none;
-      padding: 0;
-      font-size: clamp(0.7rem, 1.5vw, 1.5rem);
-      color: var(--text);
-    }
-
-    .slide-content img {
-      max-width: 80%;
-      max-height: 40vh;
-      border-radius: var(--radius);
-      border: 1px solid var(--border);
-      margin: 0.5em auto;
-      display: block;
-      box-shadow: var(--shadow);
-    }
-
-    .slide-content table {
-      width: auto;
-      max-width: 90%;
-      border-collapse: collapse;
-      margin: 1em auto;
-      font-size: clamp(0.8rem, 2vw, 2rem);
-    }
-
-    .slide-content th {
-      background: var(--surface-2);
-      font-weight: 600;
-      border: 1px solid var(--border);
-      padding: 1vw 2vw;
-      text-align: center;
-    }
-
-    .slide-content td {
-      border: 1px solid var(--border);
-      padding: 0.8vw 2vw;
-      text-align: center;
-    }
-
-    .slide-content tr:nth-child(even) td {
-      background: var(--surface-2);
-    }
-
-    .slide-content hr {
-      border: none;
-      border-top: 2px solid var(--border);
-      margin: 1.5em auto;
-      width: 60%;
-    }
-
-    /* 幻灯片导航 */
-    #slides-nav {
-      position: absolute;
-      bottom: 30px;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      background: var(--surface);
-      padding: 12px 24px;
-      border-radius: 30px;
-      box-shadow: var(--shadow);
-      border: 1px solid var(--border);
-      z-index: 100;
-    }
-
-    .nav-btn {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      border: 1px solid var(--border);
-      background: var(--surface);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--text-2);
-      transition: all var(--transition);
-    }
-
-    .nav-btn:hover:not(:disabled) {
-      background: var(--accent-light);
-      color: var(--accent);
-      border-color: var(--accent);
-    }
-
-    .nav-btn:disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
-    }
-
-    .nav-btn svg {
-      width: 18px;
-      height: 18px;
-    }
-
-    .slide-dots {
-      display: flex;
-      gap: 8px;
-    }
-
-    .dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--border);
-      cursor: pointer;
-      transition: all var(--transition);
-    }
-
-    .dot:hover {
-      background: var(--text-3);
-    }
-
-    .dot.active {
-      background: var(--accent);
-      transform: scale(1.2);
-    }
-
-    /* 全屏模式 - 使用原生全屏 */
-    :fullscreen #app {
-      background: var(--bg);
-    }
-
-    :fullscreen #toolbar,
-    :fullscreen #editor-panel {
-      display: none;
-    }
-
-    :fullscreen #main {
-      margin-top: 0;
-      height: 100vh;
-    }
-
-    :fullscreen #preview-panel {
-      background: var(--bg);
-    }
-
-    :fullscreen .slide-wrapper {
-      max-width: none;
-      width: 100vw;
-      height: 100vh;
-      border-radius: 0;
-      border: none;
-      box-shadow: none;
-    }
-
-    :fullscreen .slide {
-      padding: 6vw 10vw;
-    }
-
-    /* 全屏时隐藏翻页条 */
-    :fullscreen #slides-nav {
-      display: none;
-    }
-
-    .exit-fullscreen {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      z-index: 1001;
-      display: none;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      padding: 10px 16px;
-      border-radius: 6px;
-      font-size: .85rem;
-      color: var(--text-2);
-      box-shadow: var(--shadow);
-      align-items: center;
-      gap: 6px;
-    }
-
-    .exit-fullscreen:hover {
-      background: var(--accent-light);
-      color: var(--accent);
-    }
-
-    :fullscreen .exit-fullscreen {
-      display: flex;
-    }
-
-    /* Webkit 浏览器全屏 */
-    :-webkit-full-screen #app {
-      background: var(--bg);
-    }
-
-    :-webkit-full-screen #toolbar,
-    :-webkit-full-screen #editor-panel {
-      display: none;
-    }
-
-    :-webkit-full-screen #main {
-      margin-top: 0;
-      height: 100vh;
-    }
-
-    :-webkit-full-screen #preview-panel {
-      background: var(--bg);
-    }
-
-    :-webkit-full-screen .slide-wrapper {
-      max-width: none;
-      width: 100vw;
-      height: 100vh;
-      border-radius: 0;
-      border: none;
-      box-shadow: none;
-    }
-
-    :-webkit-full-screen .slide {
-      padding: 6vw 10vw;
-    }
-
-    :-webkit-full-screen #slides-nav {
-      display: none;
-    }
-
-    :-webkit-full-screen .exit-fullscreen {
-      display: flex;
-    }
-
-    /* Firefox 全屏 */
-    :-moz-full-screen #app {
-      background: var(--bg);
-    }
-
-    :-moz-full-screen #toolbar,
-    :-moz-full-screen #editor-panel {
-      display: none;
-    }
-
-    :-moz-full-screen #main {
-      margin-top: 0;
-      height: 100vh;
-    }
-
-    :-moz-full-screen #preview-panel {
-      background: var(--bg);
-    }
-
-    :-moz-full-screen .slide-wrapper {
-      max-width: none;
-      width: 100vw;
-      height: 100vh;
-      border-radius: 0;
-      border: none;
-      box-shadow: none;
-    }
-
-    :-moz-full-screen .slide {
-      padding: 6vw 10vw;
-    }
-
-    :-moz-full-screen #slides-nav {
-      display: none;
-    }
-
-    :-moz-full-screen .exit-fullscreen {
-      display: flex;
-    }
-
-    /* 空状态 */
-    .empty-state {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100%;
-      color: var(--text-3);
-      text-align: center;
-      padding: 40px;
-    }
-
-    .empty-state svg {
-      width: clamp(40px, 8vw, 80px);
-      height: clamp(40px, 8vw, 80px);
-      margin-bottom: 24px;
-      opacity: 0.3;
-    }
-
-    .empty-state h3 {
-      font-family: 'Lora', serif;
-      font-size: clamp(1.5rem, 4vw, 4rem);
-      margin-bottom: 12px;
-      color: var(--text-2);
-    }
-
-    .empty-state p {
-      font-size: clamp(1rem, 2vw, 2rem);
-      max-width: 80%;
-      line-height: 1.6;
-    }
-
-    /* 缩略图侧边栏 */
-    #thumbnails-panel {
-      position: absolute;
-      right: 0;
-      top: 0;
-      bottom: 0;
-      width: 240px;
-      background: var(--surface);
+    /* ══════════════════════════════════════════════════════
+       THUMBNAIL PANEL
+    ══════════════════════════════════════════════════════ */
+    #thumb-panel {
+      width: var(--thumb-w);
+      flex-shrink: 0;
+      display: flex; flex-direction: column;
       border-left: 1px solid var(--border);
-      padding: 20px;
-      overflow-y: auto;
-      transform: translateX(100%);
-      transition: transform var(--transition);
-      z-index: 50;
+      background: var(--surface-2);
+      overflow: hidden;
+      /* ③ default closed — no width, no border */
+      transition: width .26s cubic-bezier(.4,0,.2,1),
+                  border-left-width .26s,
+                  opacity .2s;
+    }
+    /* collapsed = default state */
+    #thumb-panel.collapsed {
+      width: 0;
+      opacity: 0;
+      pointer-events: none;
+      border-left-width: 0;
     }
 
-    #thumbnails-panel.open {
-      transform: translateX(0);
-    }
-
-    .thumbnails-header {
-      font-size: .75rem;
-      font-weight: 600;
-      color: var(--text-3);
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      margin-bottom: 16px;
-    }
-
-    .thumbnail {
-      width: 100%;
-      aspect-ratio: 16/9;
+    .thumb-panel-header {
+      height: 42px; padding: 0 12px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 6px; flex-shrink: 0;
       background: var(--surface);
-      border: 2px solid var(--border);
-      border-radius: 6px;
-      margin-bottom: 12px;
+    }
+
+    #thumb-scroll {
+      flex: 1; min-height: 0;
+      overflow-y: auto;
+      padding: 10px 8px 16px;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+
+    /* each thumbnail item */
+    .thumb-item {
+      flex-shrink: 0;
       cursor: pointer;
+      border-radius: 6px;
+      border: 2px solid transparent;
+      background: var(--surface);
       overflow: hidden;
       position: relative;
-      transition: all var(--transition);
+      transition: border-color var(--transition), box-shadow var(--transition), transform var(--transition);
     }
-
-    .thumbnail:hover {
+    .thumb-item:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 3px 12px rgba(0,0,0,.1);
+      border-color: var(--border);
+    }
+    .thumb-item.thumb-active {
       border-color: var(--accent);
-      transform: translateY(-2px);
-      box-shadow: var(--shadow);
+      box-shadow: 0 0 0 1px rgba(var(--accent-rgb),.18);
     }
 
-    .thumbnail.active {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 2px var(--accent-light);
-    }
-
-    .thumbnail-inner {
-      width: 400%;
-      height: 400%;
-      transform: scale(0.25);
-      transform-origin: top left;
-    }
-
-    .thumbnail-slide-content {
+    /*
+      Thumbnail canvas strategy:
+      - .thumb-canvas is a fixed-ratio (16/9) container, overflow:hidden.
+      - .thumb-inner-scaler is rendered at a FIXED logical size of 800×450px,
+        then shrunk with a fixed CSS transform.
+      - Panel inner width = 192px - 16px padding - 4px border = ~172px.
+        Scale = 172 / 800 = 0.215  →  we use 0.215.
+        Scaled height = 450 * 0.215 = ~96.75px, so canvas height = 96.75px.
+      - Because scale is written in CSS (not JS), it works even when the panel
+        is collapsed (display transition), and never produces a zero-scale bug.
+    */
+    .thumb-canvas {
       width: 100%;
-      height: 100%;
-      padding: 4vw 6vw;
+      /* height = panel_content_width * (9/16) = 172 * 0.5625 ≈ 96.75px */
+      height: 96px;
+      position: relative;
+      overflow: hidden;
+      border-radius: 4px;
+      pointer-events: none;
+      background: var(--surface);
+    }
+
+    /*
+      Fixed 800×450 logical canvas, scaled down by 0.215.
+      transform-origin: top left so the top-left corner stays anchored.
+    */
+    .thumb-inner-scaler {
+      position: absolute;
+      top: 0; left: 0;
+      width: 800px;
+      height: 450px;
+      transform: scale(0.215);
+      transform-origin: top left;
+      /* flex so .thumb-inner can center its content */
       display: flex;
       align-items: center;
       justify-content: center;
-      background: var(--surface);
-      font-size: clamp(1rem, 2.5vw, 2.5rem);
-      line-height: 1.5;
-      color: var(--text);
-      text-align: center;
     }
 
-    .thumbnail-slide-content * {
-      text-align: center;
+    /* Content rendered at full 800px scale, then everything shrinks together */
+    .thumb-inner {
+      width: 800px;
+      height: 450px;
+      padding: 40px 60px;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 8px; text-align: center;
+      overflow: hidden;
     }
-
-    .thumbnail-slide-content h1 {
-      font-family: 'Lora', serif;
-      font-size: clamp(2rem, 5vw, 5rem);
-      font-weight: 700;
-      margin-bottom: 0.5em;
+    .thumb-inner h1 { font-family: var(--font-display); font-size: 40px; font-weight: 700; color: var(--text); line-height: 1.2; text-align: center; word-break: break-word; }
+    .thumb-inner h2 { font-family: var(--font-display); font-size: 32px; font-weight: 600; color: var(--text); line-height: 1.25; text-align: center; word-break: break-word; }
+    .thumb-inner h3 { font-family: var(--font-display); font-size: 26px; font-weight: 600; color: var(--text-2); line-height: 1.3; text-align: center; word-break: break-word; }
+    .thumb-inner p  { font-size: 20px; color: var(--text-2); line-height: 1.5; text-align: center; max-width: 92%; word-break: break-word; }
+    .thumb-inner ul, .thumb-inner ol { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 4px; max-width: 90%; }
+    .thumb-inner li { font-size: 18px; color: var(--text-2); text-align: center; line-height: 1.4; }
+    .thumb-inner li::before { content: '·  '; color: var(--accent); font-weight: 700; }
+    .thumb-inner blockquote {
+      border-left: 4px solid var(--accent); background: var(--accent-light);
+      padding: 8px 16px; border-radius: 0 5px 5px 0;
+      font-style: italic; color: var(--text-2); font-size: 17px;
+      text-align: center; max-width: 86%;
     }
+    .thumb-inner blockquote p { font-size: inherit; color: inherit; max-width: 100%; }
+    .thumb-inner strong { color: var(--accent-dark); }
+    .thumb-inner hr { width: 40px; border: none; border-top: 3px solid var(--accent); margin: 4px auto; }
 
-    .thumbnail-slide-content h2 {
-      font-family: 'Lora', serif;
-      font-size: clamp(1.8rem, 4vw, 4rem);
-      font-weight: 600;
-      margin: 0.8em 0 0.5em;
-    }
-
-    .thumbnail-slide-content h3 {
-      font-family: 'Lora', serif;
-      font-size: clamp(1.5rem, 3vw, 3rem);
-      font-weight: 600;
-      color: var(--text-2);
-    }
-
-    .thumbnail-slide-content p {
-      margin-bottom: 0.8em;
-      font-size: clamp(1rem, 2.5vw, 2.5rem);
-    }
-
-    .thumbnail-slide-content ul, .thumbnail-slide-content ol {
-      margin: 0.5em 0;
-      padding-left: 0;
-      list-style-position: inside;
-      display: inline-block;
-      text-align: left;
-    }
-
-    .thumbnail-slide-content li {
-      margin-bottom: 0.4em;
-      font-size: clamp(0.9rem, 2.2vw, 2.2rem);
-      text-align: left;
-    }
-
-    .thumbnail-slide-content pre {
-      display: none;
-    }
-
-    .thumbnail-slide-content code {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.85em;
+    /* Code blocks in thumbnails: show as a styled grey box, no overflow */
+    .thumb-inner pre {
+      width: 76%;
       background: var(--surface-2);
-      padding: 0.1em 0.3em;
-      border-radius: 4px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 14px 16px;
+      text-align: left;
+      overflow: hidden;
+      max-height: 160px;
     }
-
-    .thumbnail-slide-content img {
-      max-width: 60%;
-      max-height: 20vh;
-    }
-
-    .thumbnail-slide-content blockquote {
-      font-style: italic;
+    .thumb-inner pre code {
+      display: block;
+      font-family: var(--font-mono);
+      font-size: 14px;
+      line-height: 1.6;
       color: var(--text-2);
-      margin: 1em 0;
+      white-space: pre;
+      overflow: hidden;
+      word-break: normal;
+    }
+    .thumb-inner code {
+      font-family: var(--font-mono); font-size: 17px;
+      background: var(--surface-2); border: 1px solid var(--border);
+      padding: 2px 7px; border-radius: 4px; color: var(--accent-dark);
     }
 
-    .thumbnail-slide-content table {
-      font-size: clamp(0.8rem, 2vw, 2rem);
-      margin: 1em auto;
+    /* page number badge on thumbnail */
+    .thumb-label {
+      position: absolute; bottom: 4px; right: 5px;
+      font-family: var(--font-mono); font-size: .58rem;
+      color: var(--text-3); opacity: .7;
+      background: rgba(247,246,242,.85);
+      border-radius: 3px; padding: 0 3px; line-height: 1.5;
     }
 
-    .thumbnail-num {
-      position: absolute;
-      top: 4px;
-      left: 8px;
-      font-size: .7rem;
-      font-family: 'JetBrains Mono', monospace;
-      background: var(--accent);
-      color: white;
-      padding: 2px 6px;
-      border-radius: 10px;
-      z-index: 10;
+    /* ══════════════════════════════════════════════════════
+       FULLSCREEN OVERLAY
+    ══════════════════════════════════════════════════════ */
+    #fullscreen-overlay {
+      display: none;
+      position: fixed; inset: 0; z-index: 9999;
+      background: var(--bg); flex-direction: column;
+    }
+    #fullscreen-overlay.active { display: flex; }
+
+    .fs-zone {
+      position: absolute; top: 0; bottom: 0; width: 40%;
+      z-index: 2; cursor: pointer;
+    }
+    #fs-zone-prev { left: 0; }
+    #fs-zone-next { right: 0; }
+
+    #fs-stage {
+      flex: 1; min-height: 0;
+      display: flex; align-items: center; justify-content: center;
+      padding: 60px 80px 36px;
+      overflow: hidden; position: relative; z-index: 1;
+    }
+    .fs-slide {
+      width: 100%; max-width: 1020px;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 0.7em; text-align: center;
+      animation: fsIn .28s cubic-bezier(.4,0,.2,1);
+    }
+    @keyframes fsIn {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .fs-slide h1 { font-family: var(--font-display); font-size: clamp(2rem, 4.5vw, 4rem); font-weight: 700; color: var(--text); line-height: 1.2; text-align: center; }
+    .fs-slide h2 { font-family: var(--font-display); font-size: clamp(1.5rem, 3.4vw, 3rem); font-weight: 600; color: var(--text); line-height: 1.25; text-align: center; }
+    .fs-slide h3 { font-family: var(--font-display); font-size: clamp(1.2rem, 2.6vw, 2.3rem); font-weight: 600; color: var(--text-2); line-height: 1.3; text-align: center; }
+    .fs-slide p { font-size: clamp(.95rem, 1.9vw, 1.8rem); color: var(--text-2); line-height: 1.65; text-align: center; max-width: 80%; }
+    .fs-slide ul, .fs-slide ol { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 0.4em; }
+    .fs-slide li { font-size: clamp(.9rem, 1.8vw, 1.65rem); color: var(--text-2); text-align: center; line-height: 1.5; }
+    .fs-slide li::before { content: '·  '; color: var(--accent); font-weight: 700; }
+    .fs-slide blockquote { border-left: 3px solid var(--accent); background: var(--accent-light); padding: 12px 26px; border-radius: 0 7px 7px 0; font-style: italic; color: var(--text-2); font-size: clamp(.9rem, 1.75vw, 1.58rem); max-width: 78%; }
+    .fs-slide blockquote p { font-size: inherit; color: inherit; max-width: 100%; }
+    .fs-slide code { font-family: var(--font-mono); font-size: .84em; background: var(--surface-2); border: 1px solid var(--border); padding: 2px 7px; border-radius: 4px; color: var(--accent-dark); }
+    .fs-slide pre { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 18px; text-align: left; max-width: 84%; width: 100%; overflow-x: auto; }
+    .fs-slide pre code { background: none; border: none; padding: 0; font-size: clamp(.7rem, 1.15vw, 1rem); color: var(--text); }
+    .fs-slide hr { width: 48px; border: none; border-top: 2px solid var(--accent); margin: 0.25em auto; }
+    .fs-slide strong { color: var(--text); font-weight: 700; }
+    .fs-slide em { color: var(--text); }
+
+    #fs-progress-bar-wrap {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      height: 4px; background: var(--border); z-index: 10;
+    }
+    #fs-bar {
+      height: 100%; background: var(--accent);
+      transition: width .3s cubic-bezier(.4,0,.2,1);
     }
 
-    /* 响应式 */
-    @media (max-width: 1024px) {
-      #editor-panel {
-        width: 35%;
-      }
-    }
+    /* ══════════════════════════════════════════════════════
+       MISC
+    ══════════════════════════════════════════════════════ */
+    #file-input { display: none; }
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--text-3); }
 
     @media (max-width: 768px) {
-      #editor-panel {
-        position: absolute;
-        left: 0;
-        top: 56px;
-        bottom: 0;
-        width: 80%;
-        max-width: none;
-        z-index: 200;
-        transform: translateX(-100%);
-        transition: transform var(--transition);
-      }
-
-      #editor-panel.open {
-        transform: translateX(0);
-      }
-
-      #preview-panel {
-        width: 100%;
-      }
-
-      .slide {
-        padding: 6vw;
-      }
-
-      #thumbnails-panel {
-        width: 200px;
-      }
-    }
-
-    /* 滚动条 */
-    ::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
-    }
-
-    ::-webkit-scrollbar-track {
-      background: transparent;
-    }
-
-    ::-webkit-scrollbar-thumb {
-      background: var(--border);
-      border-radius: 10px;
-    }
-
-    ::-webkit-scrollbar-thumb:hover {
-      background: var(--text-3);
-    }
-
-    /* 动画 */
-    @keyframes fadeIn {
-      from { opacity: 0; transform: scale(0.95); }
-      to { opacity: 1; transform: scale(1); }
-    }
-
-    .slide.active .slide-content {
-      animation: fadeIn 0.4s ease;
-    }
-
-    /* 提示信息 */
-    .toast {
-      position: fixed;
-      bottom: 100px;
-      left: 50%;
-      transform: translateX(-50%) translateY(100px);
-      background: var(--text);
-      color: white;
-      padding: 12px 24px;
-      border-radius: 6px;
-      font-size: .85rem;
-      opacity: 0;
-      transition: all 0.3s;
-      z-index: 2000;
-    }
-
-    .toast.show {
-      transform: translateX(-50%) translateY(0);
-      opacity: 1;
+      #app { flex-direction: column; height: auto; overflow: auto; }
+      #editor-pane { width: 100% !important; height: 40vh; border-right: none; border-bottom: 1px solid var(--border); }
+      #resizer { display: none; }
+      #preview-scroll { padding: 14px 12px 32px; gap: 18px; }
+      .slide-card { padding: 20px 24px; }
+      #topbar { padding: 0 12px; gap: 5px; }
+      #fs-stage { padding: 32px 16px 20px; }
+      #thumb-panel { display: none !important; }
     }
   </style>
-<base target="_blank">
 </head>
 <body>
-  <div id="app">
-    <!-- 顶部工具栏 -->
-    <header id="toolbar">
-      <div class="toolbar-left">
-        <div class="logo">
-          <div class="logo-icon">L</div>
-          <span>Markdown Slides</span>
-        </div>
-        <div class="slide-counter">
-          <span id="current-slide">1</span> / <span id="total-slides">1</span>
-        </div>
-      </div>
 
-      <div class="toolbar-actions">
-        <input type="file" id="file-input" accept=".md,.markdown,.txt" style="display: none;">
-        <button class="btn" onclick="window.location.href='https://rectangle518.github.io/blog-passages/index_new.html'">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M19 12H5"/>
-            <path d="M12 19l-7-7 7-7"/>
-          </svg>
-          返回博客首页
-        </button>
-        <button class="btn" onclick="document.getElementById('file-input').click()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-            <polyline points="17 8 12 3 7 8"/>
-            <line x1="12" y1="3" x2="12" y2="15"/>
-          </svg>
-          上传 Markdown
-        </button>
-        <button class="btn" onclick="toggleThumbnails()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="3" y="3" width="7" height="7"/>
-            <rect x="14" y="3" width="7" height="7"/>
-            <rect x="14" y="14" width="7" height="7"/>
-            <rect x="3" y="14" width="7" height="7"/>
-          </svg>
-          内容预览
-        </button>
-        <button class="btn btn-primary" onclick="toggleFullscreen()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
-          </svg>
-          放映
-        </button>
-      </div>
-    </header>
+<!-- ══ TOPBAR ════════════════════════════════════════════════ -->
+<header id="topbar">
+  <div class="topbar-brand">
+    <span class="brand-dot"></span>
+    Markdown Slides
+  </div>
+  <div class="topbar-spacer"></div>
 
-    <!-- 主内容 -->
-    <main id="main">
-      <!-- 编辑器面板 -->
-      <aside id="editor-panel">
-        <div class="panel-header">
-          <div class="panel-title">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-              <polyline points="14 2 14 8 20 8"/>
-              <line x1="16" y1="13" x2="8" y2="13"/>
-              <line x1="16" y1="17" x2="8" y2="17"/>
-              <polyline points="10 9 9 9 8 9"/>
-            </svg>
-            编辑区
-          </div>
-          <div class="panel-actions">
-            <button class="icon-btn" onclick="clearEditor()" title="清空">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="3 6 5 6 21 6"/>
-                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-              </svg>
-            </button>
-            <button class="icon-btn" onclick="downloadMarkdown()" title="下载">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                <polyline points="7 10 12 15 17 10"/>
-                <line x1="12" y1="15" x2="12" y2="3"/>
-              </svg>
-            </button>
-          </div>
-        </div>
-        <textarea id="editor" placeholder="在此输入 Markdown...&#10;&#10;输入 %%% 进行幻灯片分页 &#10;&#10;右侧预览区域仅供参考&#10;&#10;实际效果请点击右上角进行放映&#10;&#10;"></textarea>
-      </aside>
+  <a class="topbar-btn"
+     href="https://rectangle518.github.io/blog-passages/index_new.html"
+     title="返回博客首页">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H5a1 1 0 01-1-1V9.5z"/>
+      <polyline points="9 21 9 12 15 12 15 21"/>
+    </svg>
+    <span>博客首页</span>
+  </a>
 
-      <!-- 预览面板 -->
-      <div id="preview-panel">
-        <div id="slides-container">
-          <div class="slide-wrapper">
-            <div id="slides-list"></div>
-          </div>
-        </div>
+  <!-- 缩略图切换 -->
+  <button class="topbar-btn" id="thumb-toggle" title="显示/隐藏缩略图面板">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+      <rect x="2" y="3" width="8" height="6" rx="1"/>
+      <rect x="13" y="3" width="8" height="6" rx="1"/>
+      <rect x="2" y="12" width="8" height="6" rx="1"/>
+      <rect x="13" y="12" width="8" height="6" rx="1"/>
+    </svg>
+    <span>缩略图</span>
+  </button>
 
-        <!-- 幻灯片导航 -->
-        <div id="slides-nav">
-          <button class="nav-btn" id="prev-btn" onclick="prevSlide()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="15 18 9 12 15 6"/>
-            </svg>
-          </button>
-          <div class="slide-dots" id="slide-dots"></div>
-          <button class="nav-btn" id="next-btn" onclick="nextSlide()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="9 18 15 12 9 6"/>
-            </svg>
-          </button>
-        </div>
+  <button class="topbar-btn primary" id="present-btn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+    <span>开始放映</span>
+  </button>
+</header>
 
-        <!-- 缩略图面板 -->
-        <aside id="thumbnails-panel">
-          <div class="thumbnails-header">每页内容提要</div>
-          <div id="thumbnails-list"></div>
-        </aside>
+<!-- ══ MAIN ══════════════════════════════════════════════════ -->
+<div id="app">
 
-        <!-- 退出全屏按钮 -->
-        <!-- <button class="exit-fullscreen" onclick="toggleFullscreen()">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M4 14h6v6M20 10h-6V4M14 10l7-7M10 14l-7 7"/>
-          </svg>
-          退出放映 (ESC)
-        </button> -->
-      </div>
-    </main>
+  <!-- Editor pane -->
+  <div id="editor-pane">
+    <div class="editor-toolbar">
+      <span class="pane-label">Markdown 编辑器</span>
+      <div class="toolbar-spacer"></div>
+      <label class="tb-btn" for="file-input" title="上传 .md 文件">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <span>上传</span>
+      </label>
+      <input type="file" id="file-input" accept=".md,.markdown,.txt">
+      <button class="tb-btn" id="download-btn" title="下载 .md 文件">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        <span>下载</span>
+      </button>
+      <button class="tb-btn del" id="clear-btn" title="清空内容">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+        <span>清空</span>
+      </button>
+    </div>
 
-    <!-- 提示信息 -->
-    <div class="toast" id="toast"></div>
+    <textarea id="editor-textarea" spellcheck="false" placeholder="在此输入 Markdown 内容...
+
+# 标题
+
+正文内容
+
+@slide
+
+## 第二页
+
+- 列表项 1
+- 列表项 2"></textarea>
+
+    <div class="editor-footer">
+      用&nbsp;<span class="sep-hint">@slide</span>&nbsp;单独一行分隔页面
+      &nbsp;·&nbsp;← → 翻页&nbsp;·&nbsp;Esc 退出
+    </div>
   </div>
 
-  <script>
-    // 状态管理
-    let currentSlideIndex = 0;
-    let slides = [];
-    let isFullscreen = false;
+  <!-- Resizer -->
+  <div id="resizer"></div>
 
-    // DOM 元素
-    const editor = document.getElementById('editor');
-    const slidesList = document.getElementById('slides-list');
-    const currentSlideEl = document.getElementById('current-slide');
-    const totalSlidesEl = document.getElementById('total-slides');
-    const slideDots = document.getElementById('slide-dots');
-    const thumbnailsList = document.getElementById('thumbnails-list');
-    const fileInput = document.getElementById('file-input');
-    const toast = document.getElementById('toast');
-    const app = document.getElementById('app');
+  <!-- Preview pane (middle) -->
+  <div id="preview-pane">
+    <div class="preview-toolbar">
+      <span class="pane-label">预览</span>
+      <span class="slide-counter" id="preview-counter"></span>
+    </div>
+    <div id="preview-scroll">
+      <div id="empty-state">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="2" y="3" width="20" height="14" rx="2"/>
+          <line x1="8" y1="21" x2="16" y2="21"/>
+          <line x1="12" y1="17" x2="12" y2="21"/>
+        </svg>
+        <p>在左侧输入 Markdown 内容，<br>每页幻灯片将实时渲染在这里。<br><strong>用 @slide 单独一行分隔页面。</strong></p>
+      </div>
+    </div>
+  </div>
 
-    // 初始化
-    function init() {
-      // 配置 marked
-      marked.setOptions({
-        breaks: true,
-        gfm: true,
-        headerIds: false
-      });
+  <!-- ③ Thumbnail panel — starts with .collapsed -->
+  <div id="thumb-panel" class="collapsed">
+    <div class="thumb-panel-header">
+      <span class="pane-label">幻灯片导航</span>
+    </div>
+    <div id="thumb-scroll"></div>
+  </div>
 
-      // 监听编辑器输入
-      editor.addEventListener('input', debounce(updateSlides, 300));
+</div>
 
-      // 监听文件上传
-      fileInput.addEventListener('change', handleFileUpload);
+<!-- ══ FULLSCREEN OVERLAY ════════════════════════════════════ -->
+<div id="fullscreen-overlay">
+  <div class="fs-zone" id="fs-zone-prev"></div>
+  <div class="fs-zone" id="fs-zone-next"></div>
+  <div id="fs-stage">
+    <div class="fs-slide" id="fs-content"></div>
+  </div>
+  <div id="fs-progress-bar-wrap">
+    <div id="fs-bar"></div>
+  </div>
+</div>
 
-      // 键盘导航
-      document.addEventListener('keydown', handleKeydown);
+<script>
+/* ── Marked / hljs ─────────────────────────────────────── */
+marked.setOptions({ breaks: true, gfm: true });
+const renderer = new marked.Renderer();
+renderer.code = function(code, lang) {
+  const l = (lang || '').trim();
+  let hi;
+  if (l && hljs.getLanguage(l)) {
+    try { hi = hljs.highlight(code, { language: l }).value; }
+    catch(_) { hi = hljs.highlightAuto(code).value; }
+  } else { hi = hljs.highlightAuto(code).value; }
+  return `<pre><code class="hljs${l ? ' language-' + l : ''}">${hi}</code></pre>`;
+};
 
-      // 监听全屏变化
-      document.addEventListener('fullscreenchange', handleFullscreenChange);
-      document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
-      document.addEventListener('mozfullscreenchange', handleFullscreenChange);
-      document.addEventListener('MSFullscreenChange', handleFullscreenChange);
+/*
+  MathJax + marked compatibility:
+  marked will escape/mangle $...$ and $$...$$ before MathJax sees them.
+  Solution: stash all math expressions into a map before marked runs,
+  then restore them verbatim in the resulting HTML, then call MathJax.
+*/
+function parseMd(src) {
+  const stash = [];
+  // protect $$...$$ (display) first, then $...$ (inline)
+  let s = src
+    .replace(/\$\$([\s\S]*?)\$\$/g, (_, m) => { stash.push('$$' + m + '$$'); return `@@MATH${stash.length-1}@@`; })
+    .replace(/\$([^\$\n]+?)\$/g,    (_, m) => { stash.push('$'  + m + '$');  return `@@MATH${stash.length-1}@@`; });
+  let html = marked.parse(s, { renderer });
+  // restore stashed math (un-escape any HTML entities marked introduced around placeholders)
+  html = html.replace(/@@MATH(\d+)@@/g, (_, idx) => stash[parseInt(idx)]);
+  return html;
+}
 
-      // 初始渲染
-      updateSlides();
-    }
+/* call MathJax on a DOM element if MathJax is ready */
+function typesetMath(el) {
+  if (window.MathJax && MathJax.typesetPromise) {
+    MathJax.typesetPromise([el]).catch(err => console.warn('MathJax:', err));
+  }
+}
 
-    // 防抖函数
-    function debounce(fn, delay) {
-      let timer = null;
-      return function() {
-        if (timer) clearTimeout(timer);
-        timer = setTimeout(() => {
-          fn.apply(this, arguments);
-        }, delay);
-      };
-    }
+/*
+  ① Thumbnail renderer:
+  For code blocks we strip ALL html and just show the raw source text,
+  truncated to the first 5 lines.  No hljs, no spans, no overflow issues.
+*/
+const thumbRenderer = new marked.Renderer();
+thumbRenderer.code = function(code) {
+  const lines = code.split('\n').slice(0, 5).join('\n');
+  const safe  = lines.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  return `<pre><code>${safe}</code></pre>`;
+};
+/* strip inline code decoration for thumbnails too */
+thumbRenderer.codespan = function(code) {
+  return `<code>${code}</code>`;
+};
 
-    // 更新幻灯片 - 使用 %%% 作为分页符
-    function updateSlides() {
-      const content = editor.value;
-      const rawSlides = content.split(/^%%%$/m).map(s => s.trim()).filter(s => s);
+/* ── State ─────────────────────────────────────────────── */
+let slides  = [];
+let fsIndex = 0;
+function clamp(v, lo, hi) { return Math.max(lo, Math.min(v, hi)); }
 
-      if (rawSlides.length === 0) {
-        slides = [{ content: '<div class="empty-state"></div>' }];
-      } else {
-        slides = rawSlides.map(raw => {
-          const html = marked.parse(raw);
-          return { content: html };
-        });
+/* ── Parse slides ──────────────────────────────────────── */
+function parseSlides(md) {
+  if (!md.trim()) return [];
+  return md.split(/^@slide\s*$/m).map(s => s.trim()).filter(Boolean);
+}
+
+
+/* ── Render everything ─────────────────────────────────── */
+function renderPreviews() {
+  const md = document.getElementById('editor-textarea').value;
+  slides = parseSlides(md);
+
+  const scroll  = document.getElementById('preview-scroll');
+  const empty   = document.getElementById('empty-state');
+  const counter = document.getElementById('preview-counter');
+
+  scroll.querySelectorAll('.slide-card').forEach(c => c.remove());
+
+  if (!slides.length) {
+    empty.classList.remove('hidden');
+    counter.innerHTML = '';
+    renderThumbnails();
+    return;
+  }
+
+  empty.classList.add('hidden');
+  counter.innerHTML = `<b>${slides.length}</b> 页`;
+
+  slides.forEach((s, i) => {
+    const card = document.createElement('div');
+    card.className = 'slide-card';
+    card.dataset.index = i;
+    card.innerHTML = `
+      <span class="slide-num">${i + 1}</span>
+      <button class="slide-fs-btn" data-index="${i}" title="全屏放映此页">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/>
+        </svg>
+      </button>
+      <div class="slide-content">${parseMd(s)}</div>`;
+    card.addEventListener('click', e => {
+      const btn = e.target.closest('.slide-fs-btn');
+      if (btn) {
+        openFullscreen(parseInt(btn.dataset.index));
       }
+    });
+    scroll.appendChild(card);
+    typesetMath(card);
+  });
 
-      renderSlides();
-      renderThumbnails();
-      updateSlideInfo();
-      updateNavButtons();
+  renderThumbnails();
+}
 
-      // 重新渲染 MathJax
-      if (window.MathJax) {
-        MathJax.typesetPromise([slidesList]).catch(err => console.warn('MathJax error:', err));
-      }
-    }
+/* ── Render thumbnails ─────────────────────────────────── */
+function renderThumbnails() {
+  const thumbScroll = document.getElementById('thumb-scroll');
+  thumbScroll.innerHTML = '';
+  if (!slides.length) return;
 
-    // 渲染幻灯片
-    function renderSlides() {
-      slidesList.innerHTML = slides.map((slide, index) => `
-        <div class="slide ${index === currentSlideIndex ? 'active' : ''}" data-index="${index}">
-          <div class="slide-content">${slide.content}</div>
+  slides.forEach((s, i) => {
+    const item = document.createElement('div');
+    item.className = 'thumb-item';
+    item.dataset.index = i;
+
+    const html = marked.parse(s, { renderer: thumbRenderer });
+
+    item.innerHTML = `
+      <div class="thumb-canvas">
+        <div class="thumb-inner-scaler">
+          <div class="thumb-inner">${html}</div>
         </div>
-      `).join('');
+      </div>
+      <span class="thumb-label">${i + 1}</span>`;
 
-      // 代码高亮
-      slidesList.querySelectorAll('pre code').forEach(block => {
-        hljs.highlightElement(block);
-      });
-    }
+    /* ② Click thumbnail → scroll preview to that card, highlight it */
+    item.addEventListener('click', () => scrollToSlide(i));
+    thumbScroll.appendChild(item);
+  });
+}
 
-    // 渲染缩略图 - 显示实际内容预览
-    function renderThumbnails() {
-      thumbnailsList.innerHTML = slides.map((slide, index) => `
-        <div class="thumbnail ${index === currentSlideIndex ? 'active' : ''}" onclick="goToSlide(${index})">
-          <span class="thumbnail-num">${index + 1}</span>
-          <div class="thumbnail-inner">
-            <div class="thumbnail-slide-content">${slide.content}</div>
-          </div>
-        </div>
-      `).join('');
-    }
+/* ② Scroll preview pane to the slide card at index i */
+function scrollToSlide(i) {
+  const cards = document.querySelectorAll('.slide-card');
+  if (!cards[i]) return;
 
-    // 渲染导航点
-    function renderDots() {
-      slideDots.innerHTML = slides.map((_, index) => `
-        <div class="dot ${index === currentSlideIndex ? 'active' : ''}" onclick="goToSlide(${index})"></div>
-      `).join('');
-    }
+  /* highlight in thumbnail panel */
+  document.querySelectorAll('.thumb-item').forEach((t, idx) =>
+    t.classList.toggle('thumb-active', idx === i));
 
-    // 更新幻灯片信息
-    function updateSlideInfo() {
-      currentSlideEl.textContent = currentSlideIndex + 1;
-      totalSlidesEl.textContent = slides.length;
-      renderDots();
+  /* highlight the card itself */
+  cards.forEach((c, idx) => c.classList.toggle('active-slide', idx === i));
 
-      // 更新缩略图高亮
-      thumbnailsList.querySelectorAll('.thumbnail').forEach((thumb, i) => {
-        thumb.classList.toggle('active', i === currentSlideIndex);
-      });
-    }
+  /* smooth scroll within #preview-scroll */
+  const scroll = document.getElementById('preview-scroll');
+  const card   = cards[i];
+  const scrollTop = card.offsetTop - scroll.offsetTop - 28; /* 28px top padding */
+  scroll.scrollTo({ top: scrollTop, behavior: 'smooth' });
+}
 
-    // 更新导航按钮状态
-    function updateNavButtons() {
-      document.getElementById('prev-btn').disabled = currentSlideIndex === 0;
-      document.getElementById('next-btn').disabled = currentSlideIndex === slides.length - 1;
-    }
+/* ── Sync active states (used when fullscreen changes slide) */
+function syncActiveStates() {
+  document.querySelectorAll('.slide-card').forEach((c, i) =>
+    c.classList.toggle('active-slide', i === fsIndex));
+  document.querySelectorAll('.thumb-item').forEach((t, i) => {
+    t.classList.toggle('thumb-active', i === fsIndex);
+    if (i === fsIndex) t.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  });
+}
 
-    // 导航函数
-    function prevSlide() {
-      if (currentSlideIndex > 0) {
-        currentSlideIndex--;
-        renderSlides();
-        updateSlideInfo();
-        updateNavButtons();
-      }
-    }
+/* ── Thumbnail toggle ──────────────────────────────────── */
+const thumbToggleBtn = document.getElementById('thumb-toggle');
+const thumbPanel     = document.getElementById('thumb-panel');
+let thumbVisible     = false;
 
-    function nextSlide() {
-      if (currentSlideIndex < slides.length - 1) {
-        currentSlideIndex++;
-        renderSlides();
-        updateSlideInfo();
-        updateNavButtons();
-      }
-    }
+thumbToggleBtn.addEventListener('click', () => {
+  thumbVisible = !thumbVisible;
+  thumbPanel.classList.toggle('collapsed', !thumbVisible);
+  /* reuse the same active styling as other topbar buttons */
+  if (thumbVisible) {
+    thumbToggleBtn.style.background = 'var(--accent-light)';
+    thumbToggleBtn.style.color      = 'var(--accent)';
+    thumbToggleBtn.style.borderColor= 'rgba(var(--accent-rgb),.25)';
+  } else {
+    thumbToggleBtn.style.background  = '';
+    thumbToggleBtn.style.color       = '';
+    thumbToggleBtn.style.borderColor = '';
+  }
+});
 
-    function goToSlide(index) {
-      if (index >= 0 && index < slides.length) {
-        currentSlideIndex = index;
-        renderSlides();
-        updateSlideInfo();
-        updateNavButtons();
-      }
-    }
+/* ── Fullscreen ────────────────────────────────────────── */
+function openFullscreen(index) {
+  if (!slides.length) return;
+  fsIndex = clamp(index, 0, slides.length - 1);
+  document.getElementById('fullscreen-overlay').classList.add('active');
+  renderFsSlide();
+  const el = document.documentElement;
+  if (el.requestFullscreen) el.requestFullscreen();
+  else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+}
 
-    // 键盘控制
-    function handleKeydown(e) {
-      if (e.target === editor) return;
+function closeFullscreen() {
+  document.getElementById('fullscreen-overlay').classList.remove('active');
+  if (document.fullscreenElement || document.webkitFullscreenElement) {
+    if (document.exitFullscreen) document.exitFullscreen();
+    else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+  }
+}
 
-      switch(e.key) {
-        case 'ArrowLeft':
-        case 'ArrowUp':
-        case 'PageUp':
-          e.preventDefault();
-          prevSlide();
-          break;
-        case 'ArrowRight':
-        case 'ArrowDown':
-        case 'PageDown':
-        case ' ':
-          e.preventDefault();
-          nextSlide();
-          break;
-        case 'Home':
-          e.preventDefault();
-          goToSlide(0);
-          break;
-        case 'End':
-          e.preventDefault();
-          goToSlide(slides.length - 1);
-          break;
-        case 'Escape':
-          if (isFullscreen) {
-            exitFullscreen();
-          }
-          break;
-        case 'f':
-        case 'F':
-          if (!e.ctrlKey && !e.metaKey) {
-            e.preventDefault();
-            toggleFullscreen();
-          }
-          break;
-      }
-    }
+document.addEventListener('fullscreenchange', () => {
+  if (!document.fullscreenElement)
+    document.getElementById('fullscreen-overlay').classList.remove('active');
+});
+document.addEventListener('webkitfullscreenchange', () => {
+  if (!document.webkitFullscreenElement)
+    document.getElementById('fullscreen-overlay').classList.remove('active');
+});
 
-    // 原生全屏 API
-    function toggleFullscreen() {
-      if (!isFullscreen) {
-        enterFullscreen();
-      } else {
-        exitFullscreen();
-      }
-    }
+function renderFsSlide() {
+  const el = document.getElementById('fs-content');
+  el.innerHTML = parseMd(slides[fsIndex]);
+  el.classList.remove('fs-slide');
+  void el.offsetWidth;
+  el.classList.add('fs-slide');
+  const pct = slides.length > 1 ? (fsIndex / (slides.length - 1)) * 100 : 100;
+  document.getElementById('fs-bar').style.width = pct + '%';
+  typesetMath(el);
+  syncActiveStates();
+}
 
-    function enterFullscreen() {
-      const elem = document.documentElement;
-      if (elem.requestFullscreen) {
-        elem.requestFullscreen();
-      } else if (elem.webkitRequestFullscreen) {
-        elem.webkitRequestFullscreen();
-      } else if (elem.mozRequestFullScreen) {
-        elem.mozRequestFullScreen();
-      } else if (elem.msRequestFullscreen) {
-        elem.msRequestFullscreen();
-      }
-    }
+function fsGo(d) {
+  fsIndex = clamp(fsIndex + d, 0, slides.length - 1);
+  renderFsSlide();
+}
 
-    function exitFullscreen() {
-      if (document.exitFullscreen) {
-        document.exitFullscreen();
-      } else if (document.webkitExitFullscreen) {
-        document.webkitExitFullscreen();
-      } else if (document.mozCancelFullScreen) {
-        document.mozCancelFullScreen();
-      } else if (document.msExitFullscreen) {
-        document.msExitFullscreen();
-      }
-    }
+/* ── Controls ──────────────────────────────────────────── */
+document.getElementById('editor-textarea').addEventListener('input', renderPreviews);
+document.getElementById('present-btn').addEventListener('click', () => openFullscreen(0));
 
-    function handleFullscreenChange() {
-      isFullscreen = !!(document.fullscreenElement || 
-                       document.webkitFullscreenElement || 
-                       document.mozFullScreenElement || 
-                       document.msFullscreenElement);
-    }
+document.getElementById('download-btn').addEventListener('click', () => {
+  const text = document.getElementById('editor-textarea').value;
+  const url  = URL.createObjectURL(new Blob([text], { type: 'text/markdown;charset=utf-8' }));
+  Object.assign(document.createElement('a'), { href: url, download: 'slides.md' }).click();
+  URL.revokeObjectURL(url);
+});
 
-    // 缩略图面板切换
-    function toggleThumbnails() {
-      document.getElementById('thumbnails-panel').classList.toggle('open');
-    }
+document.getElementById('clear-btn').addEventListener('click', () => {
+  if (confirm('确定要清空编辑器内容吗？')) {
+    document.getElementById('editor-textarea').value = '';
+    renderPreviews();
+  }
+});
 
-    // 文件上传处理
-    function handleFileUpload(e) {
-      const file = e.target.files[0];
-      if (!file) return;
+document.getElementById('file-input').addEventListener('change', e => {
+  const f = e.target.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = ev => { document.getElementById('editor-textarea').value = ev.target.result; renderPreviews(); };
+  r.readAsText(f, 'UTF-8');
+  e.target.value = '';
+});
 
-      const reader = new FileReader();
-      reader.onload = function(event) {
-        editor.value = event.target.result;
-        currentSlideIndex = 0;
-        updateSlides();
-        showToast(`已加载: ${file.name}`);
-      };
-      reader.readAsText(file);
+/* keyboard */
+document.addEventListener('keydown', e => {
+  if (!document.getElementById('fullscreen-overlay').classList.contains('active')) return;
+  if      (['ArrowRight','ArrowDown',' ','PageDown'].includes(e.key)) { e.preventDefault(); fsGo(1); }
+  else if (['ArrowLeft','ArrowUp','PageUp'].includes(e.key))          { e.preventDefault(); fsGo(-1); }
+  else if (e.key === 'Escape') closeFullscreen();
+  else if (e.key === 'Home')  { fsIndex = 0; renderFsSlide(); }
+  else if (e.key === 'End')   { fsIndex = slides.length - 1; renderFsSlide(); }
+});
 
-      // 清空 input 以便重复上传同一文件
-      e.target.value = '';
-    }
+document.getElementById('fs-zone-prev').addEventListener('click', () => fsGo(-1));
+document.getElementById('fs-zone-next').addEventListener('click', () => fsGo(1));
 
-    // 清空编辑器
-    function clearEditor() {
-      if (confirm('确定要清空所有内容吗？')) {
-        editor.value = '';
-        currentSlideIndex = 0;
-        updateSlides();
-      }
-    }
+/* resizer */
+const resizerEl  = document.getElementById('resizer');
+const editorPane = document.getElementById('editor-pane');
+let dragging = false;
+resizerEl.addEventListener('mousedown', () => {
+  dragging = true; resizerEl.classList.add('dragging');
+  document.body.style.cursor = 'col-resize';
+  document.body.style.userSelect = 'none';
+});
+document.addEventListener('mousemove', e => {
+  if (!dragging) return;
+  const rect = document.getElementById('app').getBoundingClientRect();
+  editorPane.style.width = clamp(e.clientX - rect.left, 240, rect.width - 400) + 'px';
+});
+document.addEventListener('mouseup', () => {
+  if (!dragging) return;
+  dragging = false; resizerEl.classList.remove('dragging');
+  document.body.style.cursor = '';
+  document.body.style.userSelect = '';
+});
 
-    // 下载 Markdown
-    function downloadMarkdown() {
-      const content = editor.value;
-      if (!content.trim()) {
-        showToast('没有内容可下载');
-        return;
-      }
+/* ── Demo content ──────────────────────────────────────── */
+document.getElementById('editor-textarea').value = `# 欢迎使用 Markdown Slides ✦
 
-      const blob = new Blob([content], { type: 'text/markdown' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `slides-${new Date().toISOString().slice(0, 10)}.md`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      showToast('已下载 Markdown 文件');
-    }
+用 \`@slide\` 单独一行分隔每一页幻灯片
 
-    // 显示提示
-    function showToast(message) {
-      toast.textContent = message;
-      toast.classList.add('show');
-      setTimeout(() => {
-        toast.classList.remove('show');
-      }, 3000);
-    }
+@slide
 
-    // 启动
-    init();
-  </script>
+## 如何使用
+
+- 在左侧编辑 Markdown
+- 用 \`@slide\` 单独一行分页
+- 点击顶栏「缩略图」按钮打开导航面板
+
+@slide
+
+## LaTeX 数学公式
+
+行内公式：$E = mc^2$，$\\alpha + \\beta = \\gamma$
+
+$$\\int_{-\\infty}^{+\\infty} e^{-x^2}\\,dx = \\sqrt{\\pi}$$
+
+@slide
+
+> 所有文字**居中展示**，字号特别大。
+
+支持键盘 ← → 翻页，点击左右半屏也可翻页。
+
+@slide
+
+## 支持的语法
+
+\`\`\`markdown
+# 一级标题
+## 二级标题
+**粗体**  *斜体*
+- 列表项
+> 引用块
+\`\`\`
+
+@slide
+
+### 开始你的演示 🎉
+
+上传 \`.md\` 文件，或直接在编辑器中输入。
+
+按 **Esc** 退出全屏放映。`;
+
+renderPreviews();
+</script>
 </body>
 </html>
