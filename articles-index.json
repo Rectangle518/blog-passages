@@ -1,5 +1,13 @@
 [
   {
+    "file": "./articles/人工智能.md",
+    "title": "人工智能课程",
+    "excerpt": "这里是对人工智能课程的一些笔记与总结，主要包含理论课的内容。",
+    "date": "2026-03-17",
+    "category": "课内学习",
+    "tags": ["AI", "人工智能"]
+  },
+  {
     "file": "./articles/slides.md",
     "title": "Markdown Slides 产品文档",
     "excerpt": "Markdown Slides 是一款轻量级演示文稿生成工具，允许用户直接使用标准的 Markdown 语法编写幻灯片内容。",

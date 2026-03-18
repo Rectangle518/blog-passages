@@ -18,3 +18,4 @@
 2026-03-15 23:15:00 - MODIFY UI   - [master] - 完全修改了Markdown Slides，对index_new略有调整
 2026-03-17 17:35:00 - UPLOAD RDME - [master] - 上传README文件
 2026-03-17 17:40:00 - MODIFY RDME - [master] - 修改README为README.md
+2026-03-18 09:45:00 - UPLOAD BLOG - [master] - 上传博客：《人工智能课程》
