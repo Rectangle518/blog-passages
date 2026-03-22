@@ -7,7 +7,7 @@
 
 ### 任务一-编写MBR程序
 
-使用mbr.asm从12*12的位置开始打印学号：
+从 12*12 处开始输出我的学号，修改一个颜色之后，由于 12 * 80 + 12 = 972，据此确定输出位置。
 
 ```
 org 0x7c00
@@ -65,9 +65,13 @@ dd if=mbr.bin of=hd.img bs=512 count=1 seek=0 conv=notrunc
 qemu-system-i386 -hda hd.img -serial null -parallel stdio 
 ```
 
+<img src="./images/OS_lab/lab2/task1_学号.png" width="600px">
+
 ### 任务二-实模式中断
 
 1. 设置光标位置为 (8, 8)
+
+使用的是实模式中断int 10h，功能号ah设置为02h，设置行和列均为8，然后调用即可。
 
 ```
 org 0x7c00
@@ -105,7 +109,11 @@ dd if=task2_1.bin of=hd.img bs=512 count=1 seek=0 conv=notrunc
 qemu-system-i386 -hda hd.img -serial null -parallel stdio 
 ```
 
-2. 从 (8, 8) 开始打印学号：
+<img src="./images/OS_lab/lab2/task2_设置光标.png" width="600px">
+
+2. 从 (8, 8) 开始打印学号
+
+功能号ah设置为0x0e，显示一个字符后光标前移，写了一个循环来进行输出。
 
 ```
 org 0x7c00
@@ -168,7 +176,11 @@ dd if=task2_2.bin of=hd.img bs=512 count=1 seek=0 conv=notrunc
 qemu-system-i386 -hda hd.img -serial null -parallel stdio 
 ```
 
+<img src="./images/OS_lab/lab2/task2_输出学号.png" width="600px">
+
 3. 实现键盘回显
+
+调用int 16h的0号功能，读取键盘输入并放入al寄存器，并调用int 10h的0x0e进行显示并移动光标。
 
 ```
 org 0x7c00
@@ -225,7 +237,11 @@ dd if=task2_3.bin of=hd.img bs=512 count=1 seek=0 conv=notrunc
 qemu-system-i386 -hda hd.img -serial null -parallel stdio 
 ```
 
+<img src="./images/OS_lab/lab2/task2_键盘回显.png" width="600px">
+
 ### 任务三-汇编
+
+大体描述一下思路。对于if逻辑，将a1的值放入一个寄存器，根据多次比较的结果判断是否跳转即可；对于while逻辑，同样是根据比较的结果判断是否跳转，每次记得使循环变量自减；对于函数调用，主要注意压栈和出栈的处理。
 
 先使用以下命令安装相应环境：
 
@@ -298,3 +314,5 @@ your_function:
     pop esi
     ret
 ```
+
+<img src="./images/OS_lab/lab2/task3.png" width="600px">
