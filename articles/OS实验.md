@@ -359,3 +359,126 @@ your_function:
 在80286及以后，保护模式的引入使得内存地址改为32位，程序至少可以访问到 4GB 的内存空间。保护模式的段寄存器中存储的是段选择子，段选择子中存储的是段描述符在GDT（一个段描述符数组）的索引，段描述符中存储的是段的基地址、段界限、段属性等信息。
 
 在BIOS加电启动后，我们需要在实模式下的MBR中编写代码加载bootloader，然后在bootloader中实现从实模式到保护模式的跳转。
+
+### 任务一-加载bootloader
+
+#### 复现例一
+
+使用已经提供好的 bootloader.asm 和 mbr.asm，以及 makefile 文件进行编译，生成 bootloader.bin 和 mbr.bin，并将 mbr 和 bootloader 分别写入对应的扇区，然后使用 qemu 进行加载运行。
+
+makefile 文件内容如下，可以编译并写入镜像，然后执行。
+
+```makefile
+run:
+	@qemu-system-i386 -hda hd.img -serial null -parallel stdio 
+build:
+	@nasm -f bin mbr.asm -o mbr.bin
+	@nasm -f bin bootloader.asm -o bootloader.bin
+	@dd if=mbr.bin of=hd.img bs=512 count=1 seek=0 conv=notrunc
+	@dd if=bootloader.bin of=hd.img bs=512 count=5 seek=1 conv=notrunc
+clean:
+	@rm *.bin
+```
+
+```bash
+执行：
+make build
+make run
+```
+
+<img src="./images/OS_lab/lab3/example-1.png" width="600px" />
+
+#### 改用CHS读取
+
+先介绍一下从 LBA 到 CHS 的转换公式。
+设 H 为总磁头数，S 为每磁道扇区数，LBA 为逻辑块地址，则：
+(1) 柱面号(C) = LBA // (S * H)
+(2) 磁头号(H) = (LBA % (S * H)) // S
+(3) 扇区号(S) = (LBA % S) + 1
+
+修改 mbr.asm 文件的 asm_read_hard_disk 函数，使用 CHS 读取扇区，修改后的代码如下。
+
+```asm
+asm_read_hard_disk:                           
+; 从硬盘读取一个逻辑扇区
+
+; 参数列表
+; ax=逻辑扇区号0~15位
+; cx=逻辑扇区号16~28位
+; ds:bx=读取出的数据放入地址
+
+; 返回值
+; bx=bx+512
+
+    mov ch, 0x00 ; 柱面号是0
+    mov dh, 0x00 ; 磁头号是0
+    mov cl, al   
+    inc cl       ; cl=扇区号
+    mov dl, 0x80 ; 驱动器号
+    push ax      ; 保存寄存器ax
+    mov al, 0x01 ; 读取1个扇区
+
+    mov ah, 0x02 ; BIOS中断13h的功能号
+    int 0x13     ; 调用BIOS中断
+    add bx, 512
+    pop ax       ; 恢复寄存器ax
+    ret
+```
+
+结果输出与例一相同，这里不再重复贴图。
+
+### 任务二-对进入保护模式的过程进行debug
+
+利用已经提供好的 bootloader.asm 和 mbr.asm 文件，包括 makefile 和 gdbinit 文件等。执行 make build 命令进行编译，然后执行 make debug 命令启动 gdb 进行调试。
+
+其中，makefile 内容如下。
+在 build 命令下，将 bootloader.asm 和 mbr.asm 分别编译成一个可重定位文件，并使用 -g 参数加上 debug 信息；然后为可重定位文件指定起始地址，分别链接生成可执行文件 xxx.symbol 和 xxx.bin 文件。
+在 debug 命令下，启动 qemu 进行调试，间隔一秒之后在另一个终端窗口启动 gdb 进行调试（会执行 gdbinit 文件）。
+
+```
+run:
+	@qemu-system-i386 -hda hd.img -serial null -parallel stdio 
+debug:
+	@qemu-system-i386 -s -S -hda hd.img -serial null -parallel stdio &
+	@sleep 1
+	@gnome-terminal -e "gdb -q -x gdbinit"
+build:
+	@nasm -g -f elf32 mbr.asm -o mbr.o
+	@ld -o mbr.symbol -melf_i386 -N mbr.o -Ttext 0x7c00
+	@ld -o mbr.bin -melf_i386 -N mbr.o -Ttext 0x7c00 --oformat binary
+
+	@nasm -g -f elf32 bootloader.asm -o bootloader.o
+	@ld -o bootloader.symbol -melf_i386 -N bootloader.o -Ttext 0x7e00
+	@ld -o bootloader.bin -melf_i386 -N bootloader.o -Ttext 0x7e00 --oformat binary
+
+	@dd if=mbr.bin of=hd.img bs=512 count=1 seek=0 conv=notrunc
+	@dd if=bootloader.bin of=hd.img bs=512 count=5 seek=1 conv=notrunc
+clean:
+	@rm -fr *.bin *.o *.symbol
+```
+
+接下来在 gdb 中进行调试，依次验证进入保护模式的四个步骤。
+
+步骤一：准备 GDT 并用 lgdt 指令加载 GDTR 信息
+
+<img src="./images/OS_lab/lab3/GDT内容.png" width="500px" />
+
+查看地址 0x8800 附近的内容，可以看到 GDT 的内容。
+
+步骤二：开启第21根地址线（A20）
+
+<img src="./images/OS_lab/lab3/开启A20地址线.png" width="500px" />
+
+在图中可以看到 A20=1 输出，表明第21根地址线已经成功开启。
+
+步骤三：开启cr0的保护模式标志位
+
+<img src="./images/OS_lab/lab3/cr0寄存器.png" width="500px" />
+
+可以看到 cr0 寄存器的值为 0x00000011，最低位是1，表明保护模式标志位开启。
+
+步骤四：远跳转进入保护模式
+
+此时，jmp 指令将 CODE_SELECTOR 送入 cs 寄存器，将 protect_mode_begin + LOADER_START_ADDRESS 送入 eip 寄存器，进入保护模式。
+
+<img src="./images/OS_lab/lab3/远跳转.png" width="300px" />
