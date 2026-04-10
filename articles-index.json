@@ -1,5 +1,13 @@
 [
   {
+    "file": "./articles/Python项目管理.md",
+    "title": "Python项目管理",
+    "excerpt": "从pip和venv，到conda和uv。",
+    "date": "2026-04-10",
+    "category": "实用工具",
+    "tags": ["Python", "项目规范"]
+  },
+  {
     "file": "./articles/图论及其应用.md",
     "title": "图论及其应用",
     "excerpt": "对图论课程的一些笔记与总结。",
