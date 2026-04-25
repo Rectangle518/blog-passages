@@ -2,7 +2,7 @@
   {
     "file": "./articles/Python项目管理.md",
     "title": "Python项目管理",
-    "excerpt": "从pip和venv，到conda和uv。",
+    "excerpt": "从 pip 和 venv ，到 conda 和 uv 。",
     "date": "2026-04-10",
     "category": "实用工具",
     "tags": ["Python", "项目规范"]
@@ -41,7 +41,7 @@
   },
   {
     "file": "./articles/OS实验.md",
-    "title": "操作系统实验",
+    "title": "操作系统实验（实验二 ~ 五）",
     "excerpt": "对操作系统实验的过程记录，也是为了写实验报告而准备的一些笔记与草稿。",
     "date": "2026-03-09",
     "category": "实操记录",

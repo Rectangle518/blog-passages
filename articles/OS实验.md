@@ -708,3 +708,857 @@ extern "C" void c_time_interrupt_handler()
 ```
 
 <img src="./images/OS_lab/lab4/跑马灯效果.png" width="800px" />
+
+
+## 实验五-内核线程
+
+### 任务一-实现printf
+
+首先学习如何在函数内部引用可变参数列表中的参数。
+
+为了引用可变参数列表中的参数，我们需要用到`<stdarg.h>`头文件定义的一个变量类型`va_list`和三个宏`va_start`，`va_arg`，`va_end`，这三个宏用于获取可变参数列表中的参数，用法如下。
+
+| 宏                                    | 用法说明                                                     |
+| ------------------------------------- | ------------------------------------------------------------ |
+| `va_list`                             | 定义一个指向可变参数列表的指针。                             |
+| `void va_start(va_list ap, last_arg)` | 初始化可变参数列表指针`ap`，使其指向可变参数列表的起始位置，即函数的固定参数列表的最后一个参数`last_arg`的后面第一个参数。 |
+| `type va_arg(va_list ap, type)`       | 以类型`type`返回可变参数，并使`ap`指向下一个参数。           |
+| `void va_end(va_list ap)`             | 清零`ap`。      |
+
+现在来实现一个`print_any_number_of_integers`，这是一个用来输出若干个整数的函数。函数的参数分为两部分，n 是可变参数的数量，...是可变参数，表示若干个待输出的整数。
+
+```cpp
+#include <iostream>
+#include <stdarg.h>
+
+void print_any_number_of_integers(int n, ...);
+
+int main()
+{
+    print_any_number_of_integers(1, 213);
+    print_any_number_of_integers(2, 234, 2567);
+    print_any_number_of_integers(3, 487, -12, 0);
+}
+
+void print_any_number_of_integers(int n, ...)
+{
+    // 定义一个指向可变参数的指针parameter
+    va_list parameter;
+    // 使用固定参数列表的最后一个参数来初始化parameter
+    // parameter指向可变参数列表的第一个参数
+    va_start(parameter, n);
+
+    for ( int i = 0; i < n; ++i ) {
+        // 引用parameter指向的int参数，并使parameter指向下一个参数
+        std::cout << va_arg(parameter, int) << " ";
+    }
+    
+    // 清零parameter
+    va_end(parameter);
+
+    std::cout << std::endl;
+}
+```
+
+这里考虑一下这几个宏的实现。
+
+```cpp
+// 计算类型 n 的大小，并向上取整到 sizeof(int) 的整数倍
+#define _INTSIZEOF(n) ((sizeof(n) + sizeof(int) - 1) & ~(sizeof(int) - 1))
+
+// 将 ap 指针指向可变参数列表的第一个参数
+#define va_start(ap, v) (ap = (va_list)&v + _INTSIZEOF(v))
+
+// 返回ap指向的，type类型的变量，并同时使ap指向下一个参数
+#define va_arg(ap, type) (*(type *)((ap += _INTSIZEOF(type)) - _INTSIZEOF(type)))
+
+// 清零 ap 指针
+#define va_end(ap) (ap = (va_list)0)
+```
+
+接下来我们就可以开始实现`printf`函数了。`printf`函数的参数分为两部分，fmt 是格式化字符串，...是可变参数，表示若干个待输出的整数。`printf`首先找到fmt中的形如`%c,%d,%x,%s`对应的参数，然后用这些参数具体的值来替换`%c,%d,%x,%s`等，得到一个新的格式化输出字符串，这个过程称为fmt的解析。最后，printf将这个新的格式化输出字符串即可。然而，这个字符串可能非常大，会超过函数调用栈的大小。实际上，我们会定义一个缓冲区，然后对fmt进行逐字符地解析，将结果逐字符的放到缓冲区中。放入一个字符后，我们会检查缓冲区，如果缓冲区已满，则将其输出，然后清空缓冲区，否则不做处理。
+
+在实现printf前，我们需要一个能够输出字符串的函数，这个函数能够正确处理字符串中的`\n`换行字符。
+
+```cpp
+int STDIO::print(const char *const str)
+{
+    int i = 0;
+
+    for (i = 0; str[i]; ++i)
+    {
+        switch (str[i])
+        {
+        // 处理换行符
+        case '\n':
+            uint row;
+            row = getCursor() / 80;
+            // 如果当前行是最后一行，则向上滚动
+            if (row == 24)
+            {
+                rollUp();
+            }
+            // 否则，光标移动到下一行
+            else
+            {
+                ++row;
+            }
+            moveCursor(row * 80);
+            break;
+        // 处理其他字符：直接输出
+        default:
+            print(str[i]);
+            break;
+        }
+    }
+
+    return i;
+}
+```
+
+我们实现的printf比较简单，只能解析如下参数。
+
+| 符号 | 含义             |
+| ---- | ---------------- |
+| %d   | 按十进制整数输出 |
+| %c   | 输出一个字符     |
+| %s   | 输出一个字符串   |
+| %x   | 按16进制输出     |
+
+按照前面描述的过程，printf的实现如下。
+
+```cpp
+int printf(const char *const fmt, ...)
+{
+    // 缓冲区配置
+    const int BUF_LEN = 32;          // 缓冲区大小，选择32字节是为了减少内核内存使用
+    char buffer[BUF_LEN + 1];        // 主输出缓冲区，+1为字符串终止符'\0'预留空间
+    char number[33];                 // 数字转换缓冲区，33字节足够存储32位整数的任何进制表示
+    
+    // 局部变量声明
+    int idx;                         // 缓冲区当前写入位置索引（0 ~ BUF_LEN-1）
+    int counter;                     // 已成功输出的字符计数器
+    va_list ap;                      // 可变参数列表指针
+    
+    // 初始化可变参数访问
+    va_start(ap, fmt);               // 初始化ap，使其指向fmt后的第一个可变参数
+    idx = 0;                         // 从缓冲区起始位置开始
+    counter = 0;                     // 输出字符数初始为0
+    
+    // 主解析循环：逐字符处理格式字符串
+    for (int i = 0; fmt[i]; ++i)     // 遍历格式字符串直到遇到'\0'
+    {
+        // 情况1：普通字符（非格式说明符）
+        if (fmt[i] != '%')
+        {
+            // 将普通字符添加到缓冲区，如果缓冲区满则自动输出
+            counter += printf_add_to_buffer(buffer, fmt[i], idx, BUF_LEN);
+        }
+        // 情况2：遇到格式说明符起始字符'%'
+        else
+        {
+            i++;                     // 跳过'%'，查看下一个字符确定格式类型
+            
+            // 边界检查：如果'%'是字符串的最后一个字符，则终止解析
+            if (fmt[i] == '\0')
+            {
+                break;               // 格式字符串意外结束，退出循环
+            }
+            
+            // 根据格式字符类型进行相应处理
+            switch (fmt[i])
+            {
+            case '%':                // 转义情况：输出一个'%'字符
+                counter += printf_add_to_buffer(buffer, fmt[i], idx, BUF_LEN);
+                break;
+                
+            case 'c':                // 字符输出：%c
+                // 从可变参数列表中获取一个字符（C中字符参数被提升为int）
+                counter += printf_add_to_buffer(buffer, va_arg(ap, int), idx, BUF_LEN);
+                break;
+                
+            case 's':                // 字符串输出：%s
+                // 特殊处理：先输出缓冲区中已有的内容
+                buffer[idx] = '\0';   // 终止当前缓冲区内容
+                idx = 0;              // 重置缓冲区索引
+                counter += stdio.print(buffer);  // 输出缓冲区内容
+                
+                // 直接输出整个字符串（可能很长，超过缓冲区大小）
+                counter += stdio.print(va_arg(ap, const char *));
+                break;
+                
+            case 'd':                // 十进制整数输出：%d
+            case 'x':                // 十六进制整数输出：%x
+            {
+                // 从可变参数列表中获取一个整数
+                int temp = va_arg(ap, int);
+                
+                // 处理负数（仅对十进制格式）
+                if (temp < 0 && fmt[i] == 'd')
+                {
+                    // 输出负号
+                    counter += printf_add_to_buffer(buffer, '-', idx, BUF_LEN);
+                    temp = -temp;    // 转换为正数以便后续处理
+                }
+                
+                // 将整数转换为字符串表示
+                // itos函数：integer to string，返回转换后字符串的长度
+                // 参数：number-输出缓冲区，temp-要转换的整数，进制（10或16）
+                temp = itos(number, temp, (fmt[i] == 'd' ? 10 : 16));
+                
+                // 逐个输出数字字符
+                for (int j = 0; number[j]; ++j)
+                {
+                    counter += printf_add_to_buffer(buffer, number[j], idx, BUF_LEN);
+                }
+                break;
+            }
+            
+            // 注意：此处没有default分支，不支持其他格式字符
+            }
+        }
+    }
+    
+    // 循环结束后处理：输出缓冲区中剩余的内容
+    buffer[idx] = '\0';               // 终止缓冲区字符串
+    counter += stdio.print(buffer);   // 输出剩余内容
+    
+    // 返回总共输出的字符数
+    return counter;
+}
+
+```
+
+接下来测试这个printf函数。
+
+```cpp
+#include "asm_utils.h"
+#include "interrupt.h"
+#include "stdio.h"
+
+// 屏幕IO处理器
+STDIO stdio;
+// 中断管理器
+InterruptManager interruptManager;
+
+
+extern "C" void setup_kernel()
+{
+    // 中断处理部件
+    interruptManager.initialize();
+    // 屏幕IO处理部件
+    stdio.initialize();
+    interruptManager.enableTimeInterrupt();
+    interruptManager.setTimeInterrupt((void *)asm_time_interrupt_handler);
+    //asm_enable_interrupt();
+    printf("print percentage: %%\n"
+           "print char \"N\": %c\n"
+           "print string \"Hello World!\": %s\n"
+           "print decimal: \"-1234\": %d\n"
+           "print hexadecimal \"0x7abcdef0\": %x\n",
+           'N', "Hello World!", -1234, 0x7abcdef0);
+    //uint a = 1 / 0;
+    asm_halt();
+}
+```
+
+<img src="./images/OS_lab/lab5/初步实现的printf.png" width="800px" />
+
+接下来在当前的 `printf` 函数中添加对科学计数法的格式化输出支持。在之前的代码中添加一个 case 分支来处理科学计数法格式化输出。
+
+```cpp
+case 'e':
+    temp = va_arg(ap, int);
+
+    if (temp < 0)
+    {
+        counter += printf_add_to_buffer(buffer, '-', idx, BUF_LEN);
+        temp = -temp;
+    }
+
+    // 将整数用科学计数法表示
+    int_to_scientific(number, temp);
+
+    for (int j = 0; number[j]; ++j)
+    {
+        counter += printf_add_to_buffer(buffer, number[j], idx, BUF_LEN);
+    }
+    break;
+```
+
+然后实现 `int_to_scientific` 函数，将整数转换为科学计数法表示的字符串。
+
+```cpp
+void int_to_scientific(char *number, int num) {
+    // 处理0的特殊情况
+    if (num == 0) {
+        number[0] = '0';
+        number[1] = 'e';
+        number[2] = '0';
+        number[3] = '\0';
+        return;
+    }
+
+    int idx = 0;
+    int exponent = 0;
+    int temp = num;
+    int divisor = 1;
+
+    // 计算数字位数和对应的除数
+    while (temp >= 10) {
+        temp /= 10;
+        divisor *= 10;
+        exponent++;
+    }
+
+    // 写入整数部分（第一位）
+    temp = num / divisor;
+    number[idx++] = temp + '0';
+    number[idx++] = '.';
+
+    // 写入小数部分（剩余数字）
+    temp = num;
+    int current_divisor = divisor;
+    while (current_divisor >= 1) {
+        int digit = (temp / current_divisor) % 10;
+        if (current_divisor != divisor) {  // 跳过第一位数字
+            number[idx++] = digit + '0';
+        }
+        current_divisor /= 10;
+    }
+
+    // 写入指数部分
+    number[idx++] = 'e';
+    number[idx++] = '+';
+    
+    // 写入指数值
+    if (exponent >= 10) {
+        number[idx++] = (exponent / 10) + '0';
+        number[idx++] = (exponent % 10) + '0';
+    } else {
+        number[idx++] = exponent + '0';
+    }
+
+    number[idx] = '\0';
+}
+```
+
+用同样的方式进行测试，结果如图。
+
+<img src="./images/OS_lab/lab5/实现科学计数法.png" width="800px" />
+
+### 任务二-线程的实现
+
+#### 用户线程与内核线程
+
+用户线程缺点：
+- 单线程阻塞导致整个进程挂起；
+- 调度器只能感知进程级，时钟中断无法影响线程级执行流；
+- 进程内时间片再分配导致效率抵消。
+
+内核线程优点：
+- 线程与进程同等被调度，多线程进程获得更多处理器资源（例：4线程+1进程=5个独立执行流，4线程进程占80%的CPU）
+- 单线程阻塞不影响同进程其他线程
+- 系统调用开销相比提速可忽略
+
+#### 线程的描述
+
+我们创建的线程的状态有5个，分别是创建态、运行态、就绪态、阻塞态和终止态。我们使用一个枚举类型`ProgramStatus`来描述线程的5个状态。
+
+```c++
+enum ProgramStatus
+{
+    CREATED,
+    RUNNING,
+    READY,
+    BLOCKED,
+    DEAD
+};
+```
+
+线程的组成部分线程各自的栈，状态，优先级，运行时间，线程负责运行的函数，函数的参数等，这些组成部分被集中保存在一个结构中——PCB(Process Control Block)，如下所示。
+
+```cpp
+struct PCB
+{
+    int *stack;                      // 栈指针，用于调度时保存esp
+    char name[MAX_PROGRAM_NAME + 1]; // 线程名
+    enum ProgramStatus status;       // 线程的状态
+    int priority;                    // 线程优先级
+    int pid;                         // 线程pid
+    int ticks;                       // 线程时间片总时间
+    int ticksPassedBy;               // 线程已执行时间
+    ListItem tagInGeneralList;       // 线程队列标识
+    ListItem tagInAllList;           // 线程队列标识
+};
+
+struct ListItem
+{
+    ListItem *previous;
+    ListItem *next;
+};
+```
+
+#### PCB的分配
+
+声明一个程序管理类`ProgramManager`，用于线程和进程的创建和管理。
+
+```cpp
+class ProgramManager
+{
+    // ...
+};
+```
+
+在创建线程之前，我们需要向内存申请一个PCB。我们将一个PCB的大小设置为4096个字节，也就是一个页的大小。本来我们PCB的分配是通过页内存管理来实现的，类似于`malloc`和`free`。但是，我们并没有实现基于二级分页机制的内存管理，或者说我们现在还没有引入内存分页的概念。为了解决PCB的内存分配问题，我们实际上是在内存中预留了若干个PCB的内存空间来存放和管理PCB，如下所示。
+
+```cpp
+// PCB的大小，4KB。
+const int PCB_SIZE = 4096;         
+// 存放PCB的数组，预留了MAX_PROGRAM_AMOUNT个PCB的大小空间。
+char PCB_SET[PCB_SIZE * MAX_PROGRAM_AMOUNT]; 
+// PCB的分配状态，true表示已经分配，false表示未分配。
+bool PCB_SET_STATUS[MAX_PROGRAM_AMOUNT];     
+
+// 分配一个PCB
+PCB *ProgramManager::allocatePCB()
+{
+    for (int i = 0; i < MAX_PROGRAM_AMOUNT; ++i)
+    {
+        // 如果PCB未分配，则分配PCB
+        if (!PCB_SET_STATUS[i])
+        {
+            // 设置PCB的分配状态为已分配，并返回PCB的指针
+            PCB_SET_STATUS[i] = true;
+            return (PCB *)((int)PCB_SET + PCB_SIZE * i);
+        }
+    }
+
+    return nullptr;
+}
+
+// 释放一个PCB
+void ProgramManager::releasePCB(PCB *program)
+{
+    // 计算PCB在PCB_SET数组中的索引，并设置其分配状态为未分配
+    int index = ((int)program - (int)PCB_SET) / PCB_SIZE;
+    PCB_SET_STATUS[index] = false;
+}
+```
+
+#### 线程的创建
+
+这里给出线程管理类`ProgramManager`的代码。
+
+```cpp
+class ProgramManager
+{
+public:
+    List allPrograms;   // 所有状态的线程/进程的队列
+    List readyPrograms; // 处于ready(就绪态)的线程/进程的队列
+    PCB *running;       // 当前执行的线程
+public:
+    ProgramManager();
+    void initialize();
+
+    // 创建一个线程并放入就绪队列
+    // function：线程执行的函数
+    // parameter：指向函数的参数的指针
+    // name：线程的名称
+    // priority：线程的优先级
+    // 成功，返回pid；失败，返回-1
+    int executeThread(ThreadFunction function, void *parameter, const char *name, int priority);
+
+    // 分配一个PCB
+    PCB *allocatePCB();
+    // 归还一个PCB
+    // program：待释放的PCB
+    void releasePCB(PCB *program);
+
+    void schedule();
+};
+
+// 构造函数：调用initialize函数
+ProgramManager::ProgramManager()
+{
+    initialize();
+}
+
+// 初始化函数：初始化所有队列和PCB的分配状态
+void ProgramManager::initialize()
+{
+    // 初始化队列
+    allPrograms.initialize();
+    readyPrograms.initialize();
+    running = nullptr;
+
+    // 初始化PCB的分配状态
+    for (int i = 0; i < MAX_PROGRAM_AMOUNT; ++i)
+    {
+        PCB_SET_STATUS[i] = false;
+    }
+}
+
+// 创建一个线程并放入就绪队列
+int ProgramManager::executeThread(ThreadFunction function, void *parameter, const char *name, int priority)
+{
+    // 关中断，防止创建线程的过程被打断
+    bool status = interruptManager.getInterruptStatus();
+    interruptManager.disableInterrupt();
+
+    // 分配一页作为PCB
+    PCB *thread = allocatePCB();
+
+    if (!thread)
+        return -1;
+
+    // 初始化分配的页
+    memset(thread, 0, PCB_SIZE);
+
+    for (int i = 0; i < MAX_PROGRAM_NAME && name[i]; ++i)
+    {
+        thread->name[i] = name[i];
+    }
+
+    // 设置线程状态，优先级，时间片，pid等信息
+    thread->status = ProgramStatus::READY;
+    thread->priority = priority;
+    thread->ticks = priority * 10;
+    thread->ticksPassedBy = 0;
+    thread->pid = ((int)thread - (int)PCB_SET) / PCB_SIZE;
+
+    // 线程栈
+    thread->stack = (int *)((int)thread + PCB_SIZE);
+    thread->stack -= 7;
+    thread->stack[0] = 0;
+    thread->stack[1] = 0;
+    thread->stack[2] = 0;
+    thread->stack[3] = 0;
+    thread->stack[4] = (int)function;
+    thread->stack[5] = (int)program_exit;
+    thread->stack[6] = (int)parameter;
+
+    allPrograms.push_back(&(thread->tagInAllList));
+    readyPrograms.push_back(&(thread->tagInGeneralList));
+
+    // 恢复中断
+    interruptManager.setInterruptStatus(status);
+
+    return thread->pid;
+}
+```
+
+#### 线程的调度
+
+先实现一个最简单的时间片轮转调度算法。
+
+修改之前的处理时钟中断函数，如下所示。
+
+```cpp
+extern "C" void c_time_interrupt_handler()
+{
+    PCB *cur = programManager.running;
+
+    // 若当前线程还有配额
+    if (cur->ticks)
+    {
+        // 减少当前线程的配额
+        --cur->ticks;
+        // 增加当前线程的已执行配额
+        ++cur->ticksPassedBy;
+    }
+    // 若当前线程的配额用完，进行调度
+    else
+    {
+        programManager.schedule();
+    }
+}
+
+void ProgramManager::schedule()
+{
+    // 获取中断状态，关闭中断
+    bool status = interruptManager.getInterruptStatus();
+    interruptManager.disableInterrupt();
+
+    // 若没有就绪线程，则恢复原本中断状态，直接返回
+    if (readyPrograms.size() == 0)
+    {
+        interruptManager.setInterruptStatus(status);
+        return;
+    }
+
+    // 若当前线程仍在运行
+    if (running->status == ProgramStatus::RUNNING)
+    {
+        // 修改状态为就绪，放回就绪队列，重新分配配额
+        running->status = ProgramStatus::READY;
+        running->ticks = running->priority * 10;
+        readyPrograms.push_back(&(running->tagInGeneralList));
+    }
+    // 若当前线程已经死亡，直接释放
+    else if (running->status == ProgramStatus::DEAD)
+    {
+        releasePCB(running);
+    }
+
+    // 从就绪队列中取出一个线程，设置为运行状态
+    ListItem *item = readyPrograms.front();
+    PCB *next = ListItem2PCB(item, tagInGeneralList);
+    PCB *cur = running;
+    next->status = ProgramStatus::RUNNING;
+    running = next;
+    readyPrograms.pop_front();
+
+    // 切换上下文
+    asm_switch_thread(cur, next);
+
+    // 恢复中断状态
+    interruptManager.setInterruptStatus(status);
+}
+```
+
+#### 实现任务二
+
+在 PCB 的类中添加一个属性`parentPid`，表示该线程的父线程ID。
+
+然后在 `executeThread` 函数中，将父线程ID设置为当前running的线程ID，表明即将被运行的线程是由当前running线程创建的。
+
+```cpp
+thread->parentPid =  (programManager.running) ? programManager.running->pid : -1;
+```
+
+在 `setup.cpp` 里，先运行第一个进程(pid = 0)，然后由它创建第二个和第三个进程。
+
+```cpp
+void third_thread(void *arg) {
+    printf("(parentPid: %d) pid %d name \"%s\": Hello World!\n", 
+        programManager.running->parentPid, programManager.running->pid, programManager.running->name);
+    while(1) {
+
+    }
+}
+void second_thread(void *arg) {
+    printf("(parentPid: %d) pid %d name \"%s\": Hello World!\n", 
+        programManager.running->parentPid, programManager.running->pid, programManager.running->name);
+}
+void first_thread(void *arg)
+{
+    // 第1个线程不可以返回
+    printf("pid %d name \"%s\": Hello World!\n", programManager.running->pid, programManager.running->name);
+    if (!programManager.running->pid)
+    {
+        programManager.executeThread(second_thread, nullptr, "second thread", 1);
+        programManager.executeThread(third_thread, nullptr, "third thread", 1);
+    }
+    asm_halt();
+}
+```
+
+运行结果见下图。
+
+<img src="./images/OS_lab/lab5/添加父进程ID.png" width="800px" />
+
+### 任务三-线程调度切换的秘密
+
+先修改 `gdbinit` 文件，在 `first_thread` 和 `second_thread` 处打断点，然后使用gdb进行调试。
+
+<img src="./images/OS_lab/lab5/第一个线程.png" width="500px" />
+
+<img src="./images/OS_lab/lab5/第二个线程.png" width="500px" />
+
+在gdb调试输出中，观察线程切换前后的寄存器状态变化。
+
+#### **1. 通用寄存器状态**
+
+**first_thread (第一个线程)时：**
+- `eax=0x21dc0`, `ecx=0x21dc0`, `edx=0x0`, `ebx=0x0`
+- `esi=0x0`, `edi=0x0`, `ebp=0x0`
+- `esp=0x22db8` (栈指针)
+- `eip=0x204da` (程序计数器，指向first_thread入口)
+
+**second_thread (第二个线程)时：**
+- `eax=0x22dc0`, `ecx=0x1`, `edx=0x0`, `ebx=0x0`
+- `esi=0x0`, `edi=0x0`, `ebp=0x0`
+- `esp=0x23db8` (栈指针改变了！)
+- `eip=0x204a9` (程序计数器，指向second_thread入口)
+
+#### **2. 重要的变化**
+
+**栈指针(ESP)变化：**
+- 线程1: `ESP=0x22db8`
+- 线程2: `ESP=0x23db8`
+
+**差值计算：**
+```
+0x23db8 - 0x22db8 = 0x1000 = 4096字节 = 4KB
+```
+
+两个线程的栈所存放的数据大小相同，所以差值正好是4KB，说明它们位于不同的PCB中。
+
+#### **3. 新线程初始状态**
+
+两个线程在开始时都有：
+- `ebx=0`, `esi=0`, `edi=0`, `ebp=0`
+- 这是因为新线程的栈初始化时，这些寄存器被设置为0
+- 只有`eax`和`ecx`有非零值，可能是参数或临时值
+
+#### **4. 段寄存器一致性**
+
+两个线程的段寄存器完全相同：
+- `CS=0x20` (代码段)
+- `DS=0x8`, `ES=0x8` (数据段)
+- `SS=0x10` (栈段)
+- `GS=0x18` (视频内存段)
+
+这说明：
+- 所有内核线程共享相同的内存空间
+- 没有进程隔离，只有线程栈的隔离
+- 符合内核线程的设计：共享内核地址空间
+
+#### **5. EFLAGS寄存器**
+
+- 线程1: `EFLAGS=0x212`
+- 线程2: `EFLAGS=0x206`
+
+中断标志(IF)都为1，说明中断是开启的。
+
+#### **调度过程还原**
+
+**调度到second_thread**：
+   - 时钟中断触发`c_time_interrupt_handler`
+   - first_thread的ticks减少（可能已为0）
+   - `ProgramManager::schedule()`被调用
+   - first_thread状态改为READY，放回就绪队列
+   - second_thread从就绪队列头部取出
+   - `asm_switch_thread(firstThread, secondThread)`执行
+   - 保存first_thread的ESP到`firstThread->stack`
+   - 恢复second_thread的ESP从`secondThread->stack`
+
+### 任务四-调度算法的实现
+
+先实现先来先服务算法，即按照线程创建的顺序进行调度。
+
+```cpp
+void ProgramManager::FCFS_schedule()
+{
+    bool status = interruptManager.getInterruptStatus();
+    interruptManager.disableInterrupt();
+
+    // 就绪队列为空，无需调度
+    if (readyPrograms.size() == 0)
+    {
+        interruptManager.setInterruptStatus(status);
+        return;
+    }
+
+    // FCFS关键：只有当前线程终止(DEAD)时才调度
+    // 如果当前线程还在运行(RUNNING)，说明它是主动让出或阻塞
+    // 对于纯FCFS，运行态的线程不会主动让出，只会在结束时调度
+    if (running->status == ProgramStatus::DEAD)
+    {
+        releasePCB(running);
+    }
+    else if (running->status == ProgramStatus::RUNNING)
+    {
+        // FCFS：运行中的线程不因时间片耗尽而被换下
+        // 但如果线程主动阻塞，仍需处理
+        // 这里将当前线程放回就绪队列（处理阻塞场景）
+        running->status = ProgramStatus::READY;
+        readyPrograms.push_back(&(running->tagInGeneralList));
+    }
+
+    // 从就绪队列头部取出下一个线程（先来先服务）
+    ListItem *item = readyPrograms.front();
+    PCB *next = ListItem2PCB(item, tagInGeneralList);
+    PCB *cur = running;
+    next->status = ProgramStatus::RUNNING;
+    running = next;
+    readyPrograms.pop_front();
+
+    asm_switch_thread(cur, next);
+
+    interruptManager.setInterruptStatus(status);
+}
+```
+
+修改一下 `program_exit()` 函数，使其在进程结束时调用 `FCFS_schedule()`。
+
+然后重新编写测试程序 `setup.cpp` ，创建多个线程，观察调度结果。
+
+```cpp
+#include "asm_utils.h"
+#include "interrupt.h"
+#include "stdio.h"
+#include "program.h"
+#include "thread.h"
+
+STDIO stdio;
+InterruptManager interruptManager;
+ProgramManager programManager;
+
+void first_thread(void *arg)
+{
+    printf("pid %d name \"%s\": step 1\n",
+           programManager.running->pid, programManager.running->name);
+    // FCFS：这个线程会一直运行直到结束
+    // 不会被时钟中断抢占
+    printf("pid %d name \"%s\": step 2\n",
+           programManager.running->pid, programManager.running->name);
+    printf("pid %d name \"%s\": finished!\n",
+           programManager.running->pid, programManager.running->name);
+    // 线程结束后，program_exit 会调用 FCFS_schedule 调度下一个线程
+}
+
+void second_thread(void *arg)
+{
+    printf("pid %d name \"%s\": step 1\n",
+           programManager.running->pid, programManager.running->name);
+    printf("pid %d name \"%s\": step 2\n",
+           programManager.running->pid, programManager.running->name);
+    printf("pid %d name \"%s\": finished!\n",
+           programManager.running->pid, programManager.running->name);
+}
+
+void third_thread(void *arg)
+{
+    printf("pid %d name \"%s\": step 1\n",
+           programManager.running->pid, programManager.running->name);
+    printf("pid %d name \"%s\": step 2\n",
+           programManager.running->pid, programManager.running->name);
+    printf("pid %d name \"%s\": finished!\n",
+           programManager.running->pid, programManager.running->name);
+}
+
+extern "C" void setup_kernel()
+{
+    interruptManager.initialize();
+    interruptManager.enableTimeInterrupt();
+    interruptManager.setTimeInterrupt((void *)asm_time_interrupt_handler);
+
+    stdio.initialize();
+    programManager.initialize();
+
+    // 按顺序创建三个线程
+    int pid1 = programManager.executeThread(first_thread, nullptr, "first thread", 1);
+    int pid2 = programManager.executeThread(second_thread, nullptr, "second thread", 2);
+    int pid3 = programManager.executeThread(third_thread, nullptr, "third thread", 3);
+
+    if (pid1 == -1 || pid2 == -1 || pid3 == -1)
+    {
+        printf("can not execute thread\n");
+        asm_halt();
+    }
+
+    // 启动第一个线程
+    ListItem *item = programManager.readyPrograms.front();
+    PCB *firstThread = ListItem2PCB(item, tagInGeneralList);
+    firstThread->status = RUNNING;
+    programManager.readyPrograms.pop_front();
+    programManager.running = firstThread;
+    asm_switch_thread(0, firstThread);
+
+    asm_halt();
+}
+```
+
+<img src="./images/OS_lab/lab5/先来先服务.png" width="800px" />
