@@ -1,5 +1,13 @@
 [
   {
+    "file": "./articles/微观经济学.md",
+    "title": "微观经济学-笔记",
+    "excerpt": "这里是对微观经济学的一些笔记与总结。",
+    "date": "2026-04-25",
+    "category": "课内学习",
+    "tags": ["微观经济学", "经济学"]
+  },
+  {
     "file": "./articles/Python项目管理.md",
     "title": "Python项目管理",
     "excerpt": "从 pip 和 venv ，到 conda 和 uv 。",
