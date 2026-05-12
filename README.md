@@ -21,9 +21,9 @@ blog_passages/
 
 ## 🌐在线访问
 
-新版首页：<https://rectangle518.github.io/blog-passages/index_new.html>
+新版首页：<https://rectangle518.github.io/blog-passages/>
 
-旧版首页：<https://rectangle518.github.io/blog-passages/index.html>
+旧版首页：<https://rectangle518.github.io/blog-passages/index_old.html>
 
 Markdown Slides 是一款基于 Web 的轻量级演示文稿生成工具，与传统 PPT 复杂的排版流程不同，它允许用户直接使用标准的 Markdown 语法编写幻灯片内容，极大地简化了演示文稿的创建过程。
 
