@@ -1,5 +1,13 @@
 [
   {
+    "file": "./articles/hello-agent.md",
+    "title": "《Hello Agent》学习笔记",
+    "excerpt": "这里是在学习《Hello-Agent》教程时记录的一些笔记，重点在于学习 HelloAgents 框架的实现。",
+    "date": "2026-05-13",
+    "category": "课内学习",
+    "tags": ["Agent", "人工智能"]
+  },
+  {
     "file": "./articles/2308.11432.Agent综述.md",
     "title": "论文阅读笔记：《A Survey on Large Language Model based Autonomous Agents》",
     "excerpt": "这是一篇关于基于大型语言模型的自主智能体的综述论文。",
