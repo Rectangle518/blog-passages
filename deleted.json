@@ -1,5 +1,69 @@
 [
   {
+    "file": "./articles/2308.11432.Agent综述.md",
+    "title": "论文阅读笔记：《A Survey on Large Language Model based Autonomous Agents》",
+    "excerpt": "这是一篇关于基于大型语言模型的自主智能体的综述论文。",
+    "date": "2026-05-12",
+    "category": "论文阅读",
+    "tags": ["Agent", "人工智能"]
+  },
+  {
+    "file": "./articles/2210.03629.ReAct.md",
+    "title": "论文阅读笔记：《ReAct: Synergizing Reasoning and Acting in Language Models》",
+    "excerpt": "这是一篇关于在语言模型中协同推理和行动的论文，提出ReAct范式——推理与行动交错生成。",
+    "date": "2026-05-12",
+    "category": "论文阅读",
+    "tags": ["Agent", "人工智能"]
+  },
+  {
+    "file": "./articles/2303.11366.Reflexion.md",
+    "title": "论文阅读笔记：《Reflexion: Language Agents with Verbal Reinforcement Learning》",
+    "excerpt": "这篇论文提出Reflexion框架——通过语言反馈（verbal reinforcement）而非权重更新来强化语言代理。",
+    "date": "2026-05-12",
+    "category": "论文阅读",
+    "tags": ["Agent", "人工智能"]
+  },
+  {
+    "file": "./articles/2402.02716.智能体规划.md",
+    "title": "论文阅读笔记：《Understanding the Planning of LLM Agents: A Survey》",
+    "excerpt": "这是一篇关于理解LLM智能体规划的综述论文。",
+    "date": "2026-05-12",
+    "category": "论文阅读",
+    "tags": ["Agent", "人工智能"]
+  },
+  {
+    "file": "./articles/2201.11903.CoT.md",
+    "title": "论文阅读笔记：《Chain-of-Thought Prompting Elicits Reasoning in Large Language Models》",
+    "excerpt": "这是一篇关于链式思维提示的论文，展示了如何通过提示工程激发大型语言模型的推理能力。",
+    "date": "2026-05-12",
+    "category": "论文阅读",
+    "tags": ["Agent", "人工智能"]
+  },
+  {
+    "file": "./articles/2305.10601.ToT.md",
+    "title": "论文阅读笔记：《Tree-of-Thoughts: Deliberate Problem Solving with Large Language Models》",
+    "excerpt": "这是一篇关于树状思维的论文，展示了如何利用大型语言模型进行深思熟虑的问题解决。",
+    "date": "2026-05-12",
+    "category": "论文阅读",
+    "tags": ["Agent", "人工智能"]
+  },
+  {
+    "file": "./articles/2406.04271.BoT.md",
+    "title": "论文阅读笔记：《Buffer of Thoughts: Thought-Augmented Reasoning with Large Language Models》",
+    "excerpt": "这是一篇关于用语言模型引导语言模型的论文，提出了BoT框架。",
+    "date": "2026-05-12",
+    "category": "论文阅读",
+    "tags": ["Agent", "人工智能"]
+  },
+  {
+    "file": "./articles/2309.02427.CoALA.md",
+    "title": "论文阅读笔记：《Cognitive Architectures for Language Agents (CoALA)》",
+    "excerpt": "这篇论文结合理论框架与实证综述，既提出框架，又用其整理大量现有工作。",
+    "date": "2026-05-12",
+    "category": "论文阅读",
+    "tags": ["Agent", "人工智能"]
+  },
+  {
     "file": "./articles/超算队招新.md",
     "title": "超算队招新题",
     "excerpt": "对于超算队招新题的解答过程的记录，包括具体操作和配置的步骤。",

@@ -1,5 +1,21 @@
 [
   {
+    "file": "./articles/OS实验下.md",
+    "title": "操作系统实验（实验六 ~ 八）",
+    "excerpt": "对操作系统实验的过程记录，也是为了写实验报告而准备的一些笔记与草稿。",
+    "date": "2026-06-17",
+    "category": "实操记录",
+    "tags": ["OS", "操作系统"]
+  },
+  {
+    "file": "./articles/信号与系统.md",
+    "title": "信号与系统",
+    "excerpt": "信号与系统课程的期末复习，只记录一些重要的知识点。",
+    "date": "2026-06-12",
+    "category": "课内学习",
+    "tags": ["信号与系统", "傅里叶变换"]
+  },
+  {
     "file": "./articles/异步编程.md",
     "title": "异步编程",
     "excerpt": "学习JavaScript和Python中的异步编程，以及一些其他思考。",
@@ -13,70 +29,6 @@
     "excerpt": "这里是在学习《Hello-Agent》教程时记录的一些笔记，重点在于学习 HelloAgents 框架的实现。",
     "date": "2026-05-13",
     "category": "课内学习",
-    "tags": ["Agent", "人工智能"]
-  },
-  {
-    "file": "./articles/2308.11432.Agent综述.md",
-    "title": "论文阅读笔记：《A Survey on Large Language Model based Autonomous Agents》",
-    "excerpt": "这是一篇关于基于大型语言模型的自主智能体的综述论文。",
-    "date": "2026-05-12",
-    "category": "论文阅读",
-    "tags": ["Agent", "人工智能"]
-  },
-  {
-    "file": "./articles/2210.03629.ReAct.md",
-    "title": "论文阅读笔记：《ReAct: Synergizing Reasoning and Acting in Language Models》",
-    "excerpt": "这是一篇关于在语言模型中协同推理和行动的论文，提出ReAct范式——推理与行动交错生成。",
-    "date": "2026-05-12",
-    "category": "论文阅读",
-    "tags": ["Agent", "人工智能"]
-  },
-  {
-    "file": "./articles/2303.11366.Reflexion.md",
-    "title": "论文阅读笔记：《Reflexion: Language Agents with Verbal Reinforcement Learning》",
-    "excerpt": "这篇论文提出Reflexion框架——通过语言反馈（verbal reinforcement）而非权重更新来强化语言代理。",
-    "date": "2026-05-12",
-    "category": "论文阅读",
-    "tags": ["Agent", "人工智能"]
-  },
-  {
-    "file": "./articles/2402.02716.智能体规划.md",
-    "title": "论文阅读笔记：《Understanding the Planning of LLM Agents: A Survey》",
-    "excerpt": "这是一篇关于理解LLM智能体规划的综述论文。",
-    "date": "2026-05-12",
-    "category": "论文阅读",
-    "tags": ["Agent", "人工智能"]
-  },
-  {
-    "file": "./articles/2201.11903.CoT.md",
-    "title": "论文阅读笔记：《Chain-of-Thought Prompting Elicits Reasoning in Large Language Models》",
-    "excerpt": "这是一篇关于链式思维提示的论文，展示了如何通过提示工程激发大型语言模型的推理能力。",
-    "date": "2026-05-12",
-    "category": "论文阅读",
-    "tags": ["Agent", "人工智能"]
-  },
-  {
-    "file": "./articles/2305.10601.ToT.md",
-    "title": "论文阅读笔记：《Tree-of-Thoughts: Deliberate Problem Solving with Large Language Models》",
-    "excerpt": "这是一篇关于树状思维的论文，展示了如何利用大型语言模型进行深思熟虑的问题解决。",
-    "date": "2026-05-12",
-    "category": "论文阅读",
-    "tags": ["Agent", "人工智能"]
-  },
-  {
-    "file": "./articles/2406.04271.BoT.md",
-    "title": "论文阅读笔记：《Buffer of Thoughts: Thought-Augmented Reasoning with Large Language Models》",
-    "excerpt": "这是一篇关于用语言模型引导语言模型的论文，提出了BoT框架。",
-    "date": "2026-05-12",
-    "category": "论文阅读",
-    "tags": ["Agent", "人工智能"]
-  },
-  {
-    "file": "./articles/2309.02427.CoALA.md",
-    "title": "论文阅读笔记：《Cognitive Architectures for Language Agents (CoALA)》",
-    "excerpt": "这篇论文结合理论框架与实证综述，既提出框架，又用其整理大量现有工作。",
-    "date": "2026-05-12",
-    "category": "论文阅读",
     "tags": ["Agent", "人工智能"]
   },
   {
@@ -132,7 +84,7 @@
     "title": "Python补充学习",
     "excerpt": "这里是对Python的一些零散的补充学习笔记，主要是一些需要注意的点。",
     "date": "2026-03-12",
-    "category": "编程语言",
+    "category": "课内学习",
     "tags": ["Python3", "编程语言"]
   },
   {
@@ -220,7 +172,7 @@
     "title": "Golang学习",
     "excerpt": "Golang的学习笔记，主要是一些基础的语法和一些实用的功能的介绍。",
     "date": "2025-11-24",
-    "category": "编程语言",
+    "category": "课内学习",
     "tags": ["Go", "编程语言"]
   }
 ]
