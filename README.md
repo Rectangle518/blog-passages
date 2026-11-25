@@ -2,7 +2,7 @@
 
 欢迎来到我的个人博客仓库！
 
-我是中山大学计算机学院2024级的本科生，这里记录了我的学习历程和思考，也有一些实用的网页小工具。
+我是中山大学计算机学院2024级的本科生，这里记录了我的一些学习和思考。
 
 ## 📚 项目结构
 
@@ -24,7 +24,3 @@ blog_passages/
 新版首页：<https://rectangle518.github.io/blog-passages/>
 
 旧版首页：<https://rectangle518.github.io/blog-passages/index_old.html>
-
-Markdown Slides 是一款基于 Web 的轻量级演示文稿生成工具，与传统 PPT 复杂的排版流程不同，它允许用户直接使用标准的 Markdown 语法编写幻灯片内容，极大地简化了演示文稿的创建过程。
-
-地址：<https://rectangle518.github.io/blog-passages/slides.html>
