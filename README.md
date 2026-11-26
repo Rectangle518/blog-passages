@@ -9,11 +9,12 @@
 ```
 blog_passages/
 ├── articles/              # 博客文章目录
+├── deleted_articles/      # 已删除的博客文章
 ├── images/                # 图片资源目录
 ├── articles-index.json    # 文章索引配置文件
 ├── deleted.json           # 已删除文章记录
-├── index.html             # 博客首页（旧版）
-├── index_new.html         # 博客首页（新版）
+├── index.html             # 博客首页
+├── index_old.html         # 博客首页（旧版）
 ├── logs.txt               # 操作日志文件
 ├── slides.html            # 工具：Markdown Slides
 └── README                 # 项目说明文件
